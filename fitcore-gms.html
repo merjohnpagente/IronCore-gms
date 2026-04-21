@@ -1,0 +1,1846 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FitCore GMS — Gym Management System</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700;800;900&family=Barlow+Condensed:wght@700;800;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy-900: #0f172a;
+  --navy-800: #1e293b;
+  --navy-700: #334155;
+  --navy-600: #475569;
+  --orange:   #f97316;
+  --orange-dark: #ea6c0b;
+  --orange-light: #fff7ed;
+  --gold:     #f59e0b;
+  --green:    #22c55e;
+  --green-light: #f0fdf4;
+  --red:      #ef4444;
+  --red-light: #fef2f2;
+  --gray-100: #f1f5f9;
+  --gray-300: #cbd5e1;
+  --gray-500: #64748b;
+  --white:    #ffffff;
+  --sidebar-w: 256px;
+  --radius: 12px;
+  --shadow: 0 1px 3px rgba(0,0,0,.1), 0 4px 16px rgba(0,0,0,.07);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;font-family:'Barlow',sans-serif;background:var(--navy-900);color:var(--white);font-size:14px;line-height:1.5}
+a{color:inherit;text-decoration:none}
+input,select,textarea,button{font-family:inherit;font-size:inherit}
+/* ======= SCROLLBAR ======= */
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:var(--navy-800)}
+::-webkit-scrollbar-thumb{background:var(--navy-600);border-radius:3px}
+
+/* ======= LOGIN PAGE ======= */
+#loginPage{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--navy-900) 0%,#1a0a2e 50%,var(--navy-900) 100%);position:relative;overflow:hidden}
+#loginPage::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(45deg,transparent,transparent 40px,rgba(249,115,22,.03) 40px,rgba(249,115,22,.03) 41px)}
+.login-wrap{width:100%;max-width:440px;padding:20px;position:relative;z-index:1}
+.login-card{background:var(--navy-800);border:1px solid var(--navy-700);border-radius:20px;padding:40px;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+.login-logo{text-align:center;margin-bottom:28px}
+.login-logo .logo-icon{width:56px;height:56px;background:linear-gradient(135deg,var(--orange),var(--gold));border-radius:14px;display:inline-flex;align-items:center;justify-content:center;font-size:28px;margin-bottom:12px;box-shadow:0 8px 24px rgba(249,115,22,.4)}
+.login-logo h1{font-family:'Barlow Condensed',sans-serif;font-size:28px;font-weight:900;letter-spacing:1px;background:linear-gradient(135deg,var(--white),var(--gray-300));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.login-logo p{color:var(--gray-500);font-size:12px;font-weight:600;letter-spacing:2px;text-transform:uppercase;margin-top:2px}
+.form-group{margin-bottom:16px}
+.form-group label{display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--gray-500);margin-bottom:6px}
+.form-group .input-wrap{position:relative}
+.form-group input,.form-group select,.form-group textarea{width:100%;padding:11px 14px;background:var(--navy-700);border:1.5px solid var(--navy-600);border-radius:10px;color:var(--white);outline:none;transition:.2s}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--orange);box-shadow:0 0 0 3px rgba(249,115,22,.15)}
+.form-group input.invalid,.form-group select.invalid,.form-group textarea.invalid{border-color:var(--red)}
+.form-group .field-error{font-size:11px;color:var(--red);margin-top:4px}
+.pw-toggle{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--gray-500);cursor:pointer;padding:4px;line-height:1}
+.pw-toggle:hover{color:var(--white)}
+.btn-primary{background:linear-gradient(135deg,var(--orange),var(--orange-dark));color:var(--white);border:none;border-radius:10px;padding:12px 24px;font-weight:700;cursor:pointer;transition:.2s;width:100%;font-size:14px}
+.btn-primary:hover{opacity:.9;transform:translateY(-1px);box-shadow:0 4px 16px rgba(249,115,22,.4)}
+.btn-primary:active{transform:translateY(0)}
+.btn-secondary{background:var(--gray-100);color:var(--navy-800);border:none;border-radius:10px;padding:12px 24px;font-weight:600;cursor:pointer;transition:.2s}
+.btn-secondary:hover{background:var(--gray-300)}
+.btn-danger{background:var(--red-light);color:var(--red);border:none;border-radius:8px;padding:8px 16px;font-weight:600;cursor:pointer;transition:.2s}
+.btn-danger:hover{background:var(--red);color:var(--white)}
+.btn-sm{padding:6px 12px;font-size:12px;border-radius:8px}
+.btn-icon{width:30px;height:30px;border-radius:8px;border:none;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;font-size:14px;transition:.2s;background:var(--navy-700);color:var(--gray-300)}
+.btn-icon:hover{background:var(--navy-600);color:var(--white)}
+.error-msg{background:var(--red-light);color:var(--red);border:1px solid rgba(239,68,68,.2);border-radius:8px;padding:10px 14px;font-size:13px;margin-bottom:14px;display:none}
+.success-msg{background:var(--green-light);color:#166534;border:1px solid rgba(34,197,94,.2);border-radius:8px;padding:10px 14px;font-size:13px;margin-bottom:14px;display:none}
+.demo-panel{margin-top:24px}
+.demo-panel p{text-align:center;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--gray-500);margin-bottom:12px}
+.demo-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.demo-card{background:var(--navy-700);border:1px solid var(--navy-600);border-radius:10px;padding:10px 8px;cursor:pointer;transition:.2s;text-align:center}
+.demo-card:hover{border-color:var(--orange);background:rgba(249,115,22,.1)}
+.demo-card .dc-icon{font-size:20px;margin-bottom:4px}
+.demo-card .dc-role{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--orange);margin-bottom:2px}
+.demo-card .dc-creds{font-size:10px;color:var(--gray-500);line-height:1.4}
+.login-footer{text-align:center;margin-top:16px}
+.login-footer a,.login-footer span{font-size:12px;color:var(--gray-500)}
+.login-footer a{color:var(--orange);cursor:pointer}
+.login-footer a:hover{text-decoration:underline}
+/* Password strength */
+.pw-strength{margin-top:6px;display:flex;gap:4px}
+.pw-strength-bar{height:3px;flex:1;border-radius:2px;background:var(--navy-600);transition:.3s}
+.pw-strength-bar.weak{background:var(--red)}
+.pw-strength-bar.fair{background:var(--gold)}
+.pw-strength-bar.strong{background:var(--green)}
+.pw-strength-label{font-size:10px;color:var(--gray-500);text-align:right;margin-top:2px}
+
+/* ======= APP LAYOUT ======= */
+#app{display:none;height:100vh;overflow:hidden}
+#app.active{display:flex}
+.sidebar{width:var(--sidebar-w);min-width:var(--sidebar-w);background:var(--navy-900);border-right:1px solid var(--navy-700);display:flex;flex-direction:column;height:100vh;overflow-y:auto;flex-shrink:0}
+.sidebar-brand{padding:20px 20px 16px;border-bottom:1px solid var(--navy-700)}
+.sidebar-brand .brand-row{display:flex;align-items:center;gap:10px}
+.brand-icon{width:36px;height:36px;background:linear-gradient(135deg,var(--orange),var(--gold));border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.brand-name{font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:900;letter-spacing:.5px}
+.sidebar-user{padding:12px 20px;border-bottom:1px solid var(--navy-700)}
+.user-badge{display:flex;align-items:center;gap:10px}
+.user-avatar{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0}
+.avatar-admin{background:linear-gradient(135deg,var(--orange),var(--gold))}
+.avatar-staff{background:linear-gradient(135deg,#3b82f6,#6366f1)}
+.avatar-trainer{background:linear-gradient(135deg,var(--green),#16a34a)}
+.user-info .user-name{font-size:13px;font-weight:600;line-height:1.2}
+.user-info .role-badge{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;padding:2px 7px;border-radius:20px;display:inline-block;margin-top:2px}
+.rb-admin{background:rgba(249,115,22,.2);color:var(--orange)}
+.rb-staff{background:rgba(59,130,246,.2);color:#60a5fa}
+.rb-trainer{background:rgba(34,197,94,.2);color:var(--green)}
+.sidebar-nav{padding:12px 0;flex:1}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 20px;cursor:pointer;transition:.15s;color:var(--gray-500);font-weight:500;font-size:13px;border-left:3px solid transparent;position:relative}
+.nav-item:hover{color:var(--white);background:var(--navy-800)}
+.nav-item.active{color:var(--white);background:rgba(249,115,22,.12);border-left-color:var(--orange)}
+.nav-item .nav-icon{width:20px;text-align:center;font-size:15px;flex-shrink:0}
+.nav-badge{margin-left:auto;background:var(--red);color:var(--white);font-size:10px;font-weight:700;min-width:18px;height:18px;border-radius:9px;display:flex;align-items:center;justify-content:center;padding:0 5px}
+.sidebar-footer{padding:12px 16px;border-top:1px solid var(--navy-700)}
+.nav-logout{display:flex;align-items:center;gap:10px;padding:10px 16px;cursor:pointer;transition:.15s;color:var(--gray-500);font-weight:500;font-size:13px;border-radius:10px}
+.nav-logout:hover{color:var(--red);background:var(--red-light)}
+
+/* ======= MAIN CONTENT ======= */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;background:var(--navy-900)}
+.topbar{height:60px;background:var(--navy-800);border-bottom:1px solid var(--navy-700);display:flex;align-items:center;justify-content:space-between;padding:0 28px;flex-shrink:0}
+.topbar-title{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:800;letter-spacing:.5px}
+.topbar-right{display:flex;align-items:center;gap:16px}
+.topbar-date{font-size:12px;color:var(--gray-500);font-weight:600}
+.content{flex:1;overflow-y:auto;padding:28px}
+.panel{display:none}
+.panel.active{display:block;animation:fadeIn .2s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* ======= STAT CARDS ======= */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:24px}
+.stat-card{background:var(--white);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow);border-left:4px solid var(--orange);position:relative;overflow:hidden}
+.stat-card::after{content:'';position:absolute;right:-10px;top:-10px;width:70px;height:70px;border-radius:50%;opacity:.08}
+.stat-card.orange{border-left-color:var(--orange)}.stat-card.orange::after{background:var(--orange)}
+.stat-card.gold{border-left-color:var(--gold)}.stat-card.gold::after{background:var(--gold)}
+.stat-card.green{border-left-color:var(--green)}.stat-card.green::after{background:var(--green)}
+.stat-card.blue{border-left-color:#3b82f6}.stat-card.blue::after{background:#3b82f6}
+.stat-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--gray-500);margin-bottom:8px}
+.stat-value{font-size:32px;font-weight:900;font-family:'Barlow Condensed',sans-serif;color:var(--navy-900);line-height:1}
+.stat-hint{font-size:11px;color:var(--gray-500);margin-top:4px}
+
+/* ======= TABLES ======= */
+.table-card{background:var(--navy-800);border-radius:var(--radius);border:1px solid var(--navy-700);overflow:hidden;margin-bottom:20px}
+.table-header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--navy-700)}
+.table-header h3{font-size:14px;font-weight:700;font-family:'Barlow Condensed',sans-serif;font-size:16px;letter-spacing:.5px}
+.table-controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.search-input{background:var(--navy-700);border:1.5px solid var(--navy-600);border-radius:8px;color:var(--white);padding:7px 12px;outline:none;transition:.2s;min-width:180px}
+.search-input:focus{border-color:var(--orange)}
+.search-input::placeholder{color:var(--gray-500)}
+select.filter-sel{background:var(--navy-700);border:1.5px solid var(--navy-600);border-radius:8px;color:var(--white);padding:7px 10px;outline:none;cursor:pointer}
+select.filter-sel:focus{border-color:var(--orange)}
+table{width:100%;border-collapse:collapse}
+thead th{padding:10px 14px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--gray-500);background:rgba(255,255,255,.02);white-space:nowrap}
+tbody tr{border-top:1px solid rgba(255,255,255,.04);transition:.15s}
+tbody tr:hover{background:rgba(255,255,255,.03)}
+tbody td{padding:11px 14px;color:var(--gray-300);font-size:13px;vertical-align:middle}
+.td-actions{display:flex;gap:6px;align-items:center}
+.empty-state{text-align:center;padding:48px 20px;color:var(--gray-500)}
+.empty-state .empty-icon{font-size:40px;margin-bottom:12px;opacity:.5}
+.empty-state p{font-size:13px}
+
+/* ======= BADGES / PILLS ======= */
+.badge{display:inline-flex;align-items:center;border-radius:20px;font-size:11px;font-weight:700;padding:3px 9px;text-transform:uppercase;letter-spacing:.5px}
+.badge-active{background:rgba(34,197,94,.15);color:var(--green)}
+.badge-expired{background:var(--red-light);color:var(--red)}
+.badge-suspended{background:rgba(100,116,139,.2);color:var(--gray-500)}
+.badge-expiring{background:rgba(245,158,11,.15);color:var(--gold)}
+.badge-admin{background:rgba(249,115,22,.15);color:var(--orange)}
+.badge-staff{background:rgba(99,102,241,.2);color:#818cf8}
+.badge-trainer{background:rgba(34,197,94,.15);color:var(--green)}
+.badge-paid{background:rgba(34,197,94,.15);color:var(--green)}
+.badge-pending{background:rgba(245,158,11,.15);color:var(--gold)}
+.badge-scheduled{background:rgba(99,102,241,.2);color:#818cf8}
+.badge-completed{background:rgba(34,197,94,.15);color:var(--green)}
+.badge-cancelled{background:var(--red-light);color:var(--red)}
+.badge-locked{background:var(--red-light);color:var(--red)}
+.badge-inactive{background:rgba(100,116,139,.2);color:var(--gray-500)}
+
+/* ======= MODAL ======= */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);display:none;align-items:center;justify-content:center;z-index:1000;padding:20px;backdrop-filter:blur(4px)}
+.modal-overlay.open{display:flex;animation:overlayIn .2s ease}
+@keyframes overlayIn{from{opacity:0}to{opacity:1}}
+.modal{background:var(--navy-800);border:1px solid var(--navy-700);border-radius:20px;width:100%;max-width:560px;max-height:90vh;display:flex;flex-direction:column;animation:modalIn .2s ease}
+.modal.modal-lg{max-width:700px}
+.modal.modal-xl{max-width:860px}
+@keyframes modalIn{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:scale(1)}}
+.modal-head{padding:20px 24px;border-bottom:1px solid var(--navy-700);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.modal-head h2{font-size:17px;font-weight:700;font-family:'Barlow Condensed',sans-serif;letter-spacing:.5px}
+.modal-close{background:none;border:none;color:var(--gray-500);cursor:pointer;font-size:20px;line-height:1;transition:.2s;padding:4px;border-radius:6px}
+.modal-close:hover{color:var(--white);background:var(--navy-700)}
+.modal-body{padding:24px;overflow-y:auto;flex:1}
+.modal-foot{padding:16px 24px;border-top:1px solid var(--navy-700);display:flex;justify-content:flex-end;gap:10px;flex-shrink:0}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.form-row.cols-3{grid-template-columns:1fr 1fr 1fr}
+.form-full{grid-column:1/-1}
+.modal .form-group input,.modal .form-group select,.modal .form-group textarea{background:var(--navy-700);border:1.5px solid var(--navy-600);color:var(--white)}
+.modal .form-group textarea{resize:vertical;min-height:72px}
+select option{background:var(--navy-700)}
+
+/* ======= TOAST ======= */
+.toast-wrap{position:fixed;top:20px;right:20px;z-index:2000;display:flex;flex-direction:column;gap:8px;pointer-events:none}
+.toast{background:var(--navy-800);border:1px solid var(--navy-700);border-radius:10px;padding:12px 16px;min-width:260px;box-shadow:0 8px 24px rgba(0,0,0,.4);animation:toastIn .3s ease;display:flex;align-items:center;gap:10px;font-size:13px;font-weight:500;pointer-events:auto}
+.toast.removing{animation:toastOut .3s ease forwards}
+@keyframes toastIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
+@keyframes toastOut{to{opacity:0;transform:translateX(20px)}}
+.toast.success{border-left:3px solid var(--green)}.toast.success .toast-icon{color:var(--green)}
+.toast.error{border-left:3px solid var(--red)}.toast.error .toast-icon{color:var(--red)}
+.toast.info{border-left:3px solid #60a5fa}.toast.info .toast-icon{color:#60a5fa}
+.toast-icon{font-size:16px;flex-shrink:0}
+
+/* ======= PAGINATION ======= */
+.pagination{display:flex;align-items:center;gap:8px;padding:14px 20px;border-top:1px solid var(--navy-700)}
+.page-btn{width:30px;height:30px;border-radius:8px;border:1px solid var(--navy-600);background:transparent;color:var(--gray-300);cursor:pointer;font-size:13px;display:inline-flex;align-items:center;justify-content:center;transition:.15s}
+.page-btn:hover{border-color:var(--orange);color:var(--orange)}
+.page-btn.active{background:var(--orange);border-color:var(--orange);color:var(--white)}
+.page-btn:disabled{opacity:.4;cursor:default}
+.page-info{font-size:12px;color:var(--gray-500);margin-left:auto}
+
+/* ======= CHARTS ======= */
+.charts-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px}
+.chart-card{background:var(--navy-800);border-radius:var(--radius);border:1px solid var(--navy-700);padding:20px}
+.chart-title{font-size:13px;font-weight:700;color:var(--gray-300);margin-bottom:16px;text-transform:uppercase;letter-spacing:.5px}
+.chart-card svg{width:100%;overflow:visible}
+
+/* ======= SCHEDULE ======= */
+.sched-controls{display:flex;gap:10px;margin-bottom:16px;align-items:center;flex-wrap:wrap}
+.view-toggle{display:flex;gap:0;background:var(--navy-800);border:1px solid var(--navy-700);border-radius:8px;overflow:hidden}
+.vt-btn{padding:7px 14px;border:none;background:transparent;color:var(--gray-500);cursor:pointer;font-size:12px;font-weight:600;transition:.15s}
+.vt-btn.active{background:var(--orange);color:var(--white)}
+.week-grid{background:var(--navy-800);border:1px solid var(--navy-700);border-radius:var(--radius);overflow:auto;margin-bottom:20px}
+.week-header{display:grid;grid-template-columns:60px repeat(7,1fr);border-bottom:1px solid var(--navy-700)}
+.wh-cell{padding:10px 8px;text-align:center;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--gray-500)}
+.week-body{display:grid;grid-template-columns:60px repeat(7,1fr)}
+.time-col{display:flex;flex-direction:column}
+.time-slot{height:48px;display:flex;align-items:center;justify-content:flex-end;padding-right:8px;font-size:10px;color:var(--gray-500);border-top:1px solid rgba(255,255,255,.04)}
+.day-col{border-left:1px solid rgba(255,255,255,.04);position:relative;min-height:768px}
+.session-block{position:absolute;left:2px;right:2px;border-radius:6px;padding:4px 6px;font-size:10px;font-weight:600;cursor:pointer;overflow:hidden;transition:.2s}
+.session-block:hover{opacity:.85;transform:scale(1.01)}
+
+/* ======= NOTIFICATIONS ======= */
+.notif-list{display:flex;flex-direction:column;gap:8px}
+.notif-item{background:var(--navy-800);border:1px solid var(--navy-700);border-radius:10px;padding:14px 16px;display:flex;align-items:center;gap:14px;transition:.2s}
+.notif-item.urgent{border-left:3px solid var(--red)}
+.notif-item.warning{border-left:3px solid var(--gold)}
+.notif-info{flex:1}
+.notif-name{font-weight:600;font-size:13px}
+.notif-detail{font-size:12px;color:var(--gray-500);margin-top:2px}
+.days-badge{font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px}
+.days-urgent{background:var(--red-light);color:var(--red)}
+.days-warn{background:rgba(245,158,11,.15);color:var(--gold)}
+
+/* ======= REPORTS ======= */
+.report-tabs{display:flex;gap:0;background:var(--navy-800);border:1px solid var(--navy-700);border-radius:10px;overflow:hidden;margin-bottom:20px;width:fit-content}
+.rtab{padding:9px 20px;border:none;background:transparent;color:var(--gray-500);cursor:pointer;font-size:13px;font-weight:600;transition:.15s}
+.rtab.active{background:var(--orange);color:var(--white)}
+.report-filters{background:var(--navy-800);border:1px solid var(--navy-700);border-radius:var(--radius);padding:16px 20px;margin-bottom:20px;display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;align-items:end}
+.report-output{display:none}
+.report-output.visible{display:block}
+
+/* ======= PLAN CARDS ======= */
+.plan-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px;margin-bottom:20px}
+.plan-card{background:var(--navy-800);border:1px solid var(--navy-700);border-radius:var(--radius);padding:20px;transition:.2s}
+.plan-card:hover{border-color:var(--orange)}
+.plan-card-name{font-size:17px;font-weight:800;font-family:'Barlow Condensed',sans-serif;letter-spacing:.5px;margin-bottom:4px}
+.plan-card-price{font-size:26px;font-weight:900;font-family:'Barlow Condensed',sans-serif;color:var(--orange);margin-bottom:12px}
+.plan-feature{font-size:12px;color:var(--gray-500);padding:3px 0;border-bottom:1px solid rgba(255,255,255,.05)}
+
+/* ======= RECEIPT ======= */
+.receipt{background:var(--white);color:var(--navy-900);padding:28px;border-radius:10px}
+.receipt h2{font-size:20px;font-weight:900;font-family:'Barlow Condensed',sans-serif;text-align:center;margin-bottom:4px}
+.receipt .receipt-sub{text-align:center;font-size:11px;color:var(--gray-500);margin-bottom:20px}
+.receipt-divider{border:none;border-top:1px dashed var(--gray-300);margin:14px 0}
+.receipt-row{display:flex;justify-content:space-between;padding:4px 0;font-size:13px}
+.receipt-row.total{font-weight:700;font-size:15px;margin-top:8px}
+
+/* ATTENDANCE CHECK-IN */
+.checkin-btn-wrap{margin-bottom:16px}
+
+/* Avatar */
+.member-avatar{width:30px;height:30px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;background:linear-gradient(135deg,var(--orange),var(--gold));color:var(--white)}
+
+/* Profile modal */
+.profile-section{margin-bottom:20px}
+.profile-section h4{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--gray-500);margin-bottom:12px;padding-bottom:6px;border-bottom:1px solid var(--navy-700)}
+.profile-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.profile-field label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--gray-500)}
+.profile-field p{font-size:13px;font-weight:500;margin-top:2px}
+
+/* Section titles */
+.section-title{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:800;letter-spacing:.5px;margin-bottom:16px;display:flex;align-items:center;gap:10px}
+
+/* Misc */
+.label-hint{font-size:11px;color:var(--gray-500);margin-top:2px}
+.inline-edit{display:flex;gap:8px;align-items:center}
+.unlimited-toggle{display:flex;align-items:center;gap:8px;margin-top:6px;font-size:13px;color:var(--gray-300)}
+.page-actions{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px}
+.confirm-dialog{text-align:center;padding:8px 0}
+.confirm-dialog p{color:var(--gray-300);margin-bottom:20px}
+.confirm-btns{display:flex;gap:10px;justify-content:center}
+</style>
+</head>
+<body>
+
+<!-- ============================================================ LOGIN PAGE ============================================================ -->
+<div id="loginPage">
+  <div class="login-wrap">
+    <div class="login-card" id="loginCard">
+      <!-- LOGIN FORM -->
+      <div id="loginForm">
+        <div class="login-logo">
+          <div class="logo-icon">🏋️</div>
+          <h1>FitCore GMS</h1>
+          <p>Gym Management System</p>
+        </div>
+        <div id="loginError" class="error-msg"></div>
+        <div class="form-group">
+          <label>Username</label>
+          <input type="text" id="loginUser" placeholder="Enter username" autocomplete="username">
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <div class="input-wrap">
+            <input type="password" id="loginPass" placeholder="Enter password" autocomplete="current-password">
+            <button type="button" class="pw-toggle" onclick="togglePw('loginPass',this)">👁</button>
+          </div>
+        </div>
+        <button class="btn-primary" onclick="doLogin()">Log In</button>
+        <div class="demo-panel">
+          <p>Quick Demo Access</p>
+          <div class="demo-cards">
+            <div class="demo-card" onclick="quickLogin('admin','admin123')">
+              <div class="dc-icon">👑</div>
+              <div class="dc-role">Admin</div>
+              <div class="dc-creds">admin<br>admin123</div>
+            </div>
+            <div class="demo-card" onclick="quickLogin('staff','staff123')">
+              <div class="dc-icon">🧑‍💼</div>
+              <div class="dc-role">Staff</div>
+              <div class="dc-creds">staff<br>staff123</div>
+            </div>
+            <div class="demo-card" onclick="quickLogin('trainer','trainer123')">
+              <div class="dc-icon">💪</div>
+              <div class="dc-role">Trainer</div>
+              <div class="dc-creds">trainer<br>trainer123</div>
+            </div>
+          </div>
+        </div>
+        <div class="login-footer"><span>Don't have an account? </span><a onclick="showRegister()">Register</a></div>
+      </div>
+      <!-- REGISTER FORM -->
+      <div id="registerForm" style="display:none">
+        <div class="login-logo">
+          <div class="logo-icon">➕</div>
+          <h1>Create Account</h1>
+          <p>Staff & Trainer Registration</p>
+        </div>
+        <div id="regError" class="error-msg"></div>
+        <div id="regSuccess" class="success-msg"></div>
+        <div class="form-group">
+          <label>Full Name *</label>
+          <input type="text" id="regName" placeholder="Enter your full name">
+        </div>
+        <div class="form-group">
+          <label>Username *</label>
+          <input type="text" id="regUser" placeholder="Choose a username">
+        </div>
+        <div class="form-group">
+          <label>Password *</label>
+          <div class="input-wrap">
+            <input type="password" id="regPass" placeholder="Min 6 characters" oninput="updateStrength(this.value)">
+            <button type="button" class="pw-toggle" onclick="togglePw('regPass',this)">👁</button>
+          </div>
+          <div class="pw-strength"><div class="pw-strength-bar" id="ps1"></div><div class="pw-strength-bar" id="ps2"></div><div class="pw-strength-bar" id="ps3"></div></div>
+          <div class="pw-strength-label" id="psLabel"></div>
+        </div>
+        <div class="form-group">
+          <label>Confirm Password *</label>
+          <input type="password" id="regPass2" placeholder="Repeat password">
+        </div>
+        <div class="form-group">
+          <label>Role *</label>
+          <select id="regRole">
+            <option value="">Select role</option>
+            <option value="staff">Staff</option>
+            <option value="trainer">Trainer</option>
+          </select>
+        </div>
+        <button class="btn-primary" onclick="doRegister()">Create Account</button>
+        <div class="login-footer"><a onclick="showLogin()">← Back to Login</a></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ APP ============================================================ -->
+<div id="app">
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-row">
+        <div class="brand-icon">🏋️</div>
+        <div class="brand-name">FitCore GMS</div>
+      </div>
+    </div>
+    <div class="sidebar-user">
+      <div class="user-badge">
+        <div class="user-avatar" id="sideUserAvatar"></div>
+        <div class="user-info">
+          <div class="user-name" id="sideUserName"></div>
+          <span class="role-badge" id="sideUserRole"></span>
+        </div>
+      </div>
+    </div>
+    <nav class="sidebar-nav" id="sideNav"></nav>
+    <div class="sidebar-footer">
+      <div class="nav-logout" onclick="doLogout()">
+        <span class="nav-icon">🚪</span> Logout
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+    <div class="topbar">
+      <div class="topbar-title" id="pageTitle">Dashboard</div>
+      <div class="topbar-right">
+        <div class="topbar-date" id="topDate"></div>
+        <div class="user-avatar" id="topAvatar" style="width:34px;height:34px;font-size:12px;font-weight:700;flex-shrink:0"></div>
+      </div>
+    </div>
+    <div class="content">
+      <!-- PANELS -->
+      <div class="panel" id="panelDashboard"></div>
+      <div class="panel" id="panelMembers"></div>
+      <div class="panel" id="panelBilling"></div>
+      <div class="panel" id="panelSchedule"></div>
+      <div class="panel" id="panelNotifications"></div>
+      <div class="panel" id="panelPlans"></div>
+      <div class="panel" id="panelReports"></div>
+      <div class="panel" id="panelUsers"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ MODALS ============================================================ -->
+<!-- Generic Confirm -->
+<div class="modal-overlay" id="confirmModal">
+  <div class="modal" style="max-width:400px">
+    <div class="modal-head"><h2 id="confirmTitle">Confirm Action</h2><button class="modal-close" onclick="closeModal('confirmModal')">✕</button></div>
+    <div class="modal-body"><div class="confirm-dialog"><p id="confirmMsg"></p><div class="confirm-btns"><button class="btn-secondary btn-sm" onclick="closeModal('confirmModal')">Cancel</button><button class="btn-danger btn-sm" id="confirmOkBtn">Delete</button></div></div></div>
+  </div>
+</div>
+<!-- Member Modal -->
+<div class="modal-overlay" id="memberModal">
+  <div class="modal modal-lg">
+    <div class="modal-head"><h2 id="memberModalTitle">Add Member</h2><button class="modal-close" onclick="closeModal('memberModal')">✕</button></div>
+    <div class="modal-body">
+      <div id="memberFormError" class="error-msg"></div>
+      <div class="form-row">
+        <div class="form-group"><label>Full Name *</label><input type="text" id="mf_name"></div>
+        <div class="form-group"><label>Contact Number *</label><input type="text" id="mf_contact"></div>
+      </div>
+      <div class="form-row cols-3">
+        <div class="form-group"><label>Age</label><input type="number" id="mf_age" min="1" max="120"></div>
+        <div class="form-group"><label>Sex</label><select id="mf_sex"><option value="">Select</option><option>Male</option><option>Female</option></select></div>
+        <div class="form-group"><label>Membership Plan *</label><select id="mf_plan"></select></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Start Date *</label><input type="date" id="mf_start"></div>
+        <div class="form-group"><label>Address</label><input type="text" id="mf_address"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Emergency Contact Name</label><input type="text" id="mf_ecname"></div>
+        <div class="form-group"><label>Emergency Contact Number</label><input type="text" id="mf_ecnum"></div>
+      </div>
+      <div class="form-group"><label>Medical / Special Notes</label><textarea id="mf_notes" rows="2"></textarea></div>
+    </div>
+    <div class="modal-foot"><button class="btn-secondary" onclick="closeModal('memberModal')">Cancel</button><button class="btn-primary" onclick="saveMember()">Save Member</button></div>
+  </div>
+</div>
+<!-- Member Profile Modal -->
+<div class="modal-overlay" id="profileModal">
+  <div class="modal modal-xl">
+    <div class="modal-head"><h2>Member Profile</h2><button class="modal-close" onclick="closeModal('profileModal')">✕</button></div>
+    <div class="modal-body" id="profileModalBody"></div>
+    <div class="modal-foot"><button class="btn-secondary" onclick="closeModal('profileModal')">Close</button><button class="btn-primary" onclick="openEditFromProfile()">✏ Edit Profile</button></div>
+  </div>
+</div>
+<!-- Payment Modal -->
+<div class="modal-overlay" id="paymentModal">
+  <div class="modal">
+    <div class="modal-head"><h2 id="paymentModalTitle">Record Payment</h2><button class="modal-close" onclick="closeModal('paymentModal')">✕</button></div>
+    <div class="modal-body">
+      <div id="paymentFormError" class="error-msg"></div>
+      <div class="form-group"><label>Member *</label>
+        <input type="text" id="pf_memberSearch" placeholder="Type to search member..." oninput="filterMemberDropdown(this.value)" autocomplete="off">
+        <div id="pf_memberList" style="background:var(--navy-700);border:1px solid var(--navy-600);border-radius:8px;max-height:150px;overflow-y:auto;display:none;position:relative;z-index:10"></div>
+        <input type="hidden" id="pf_memberId">
+      </div>
+      <div class="form-group"><label>Membership Package *</label><select id="pf_plan" onchange="onPayPlanChange()"><option value="">Select plan</option></select></div>
+      <div class="form-row">
+        <div class="form-group"><label>Amount Paid (₱) *</label><input type="number" id="pf_amount" min="1" step="0.01"></div>
+        <div class="form-group"><label>Payment Date *</label><input type="date" id="pf_date"></div>
+      </div>
+      <div class="form-group"><label>Payment Method *</label><select id="pf_method"><option value="">Select</option><option>Cash</option><option>GCash</option><option>Bank Transfer</option></select></div>
+      <div class="form-group"><label>Notes</label><textarea id="pf_notes" rows="2"></textarea></div>
+    </div>
+    <div class="modal-foot"><button class="btn-secondary" onclick="closeModal('paymentModal')">Cancel</button><button class="btn-primary" onclick="savePayment()">Record Payment</button></div>
+  </div>
+</div>
+<!-- Receipt Modal -->
+<div class="modal-overlay" id="receiptModal">
+  <div class="modal" style="max-width:420px">
+    <div class="modal-head"><h2>Payment Receipt</h2><button class="modal-close" onclick="closeModal('receiptModal')">✕</button></div>
+    <div class="modal-body" id="receiptBody"></div>
+    <div class="modal-foot"><button class="btn-secondary" onclick="closeModal('receiptModal')">Close</button><button class="btn-primary" onclick="window.print()">🖨 Print</button></div>
+  </div>
+</div>
+<!-- Session Modal -->
+<div class="modal-overlay" id="sessionModal">
+  <div class="modal">
+    <div class="modal-head"><h2 id="sessionModalTitle">Create Session</h2><button class="modal-close" onclick="closeModal('sessionModal')">✕</button></div>
+    <div class="modal-body">
+      <div id="sessionFormError" class="error-msg"></div>
+      <div class="form-row">
+        <div class="form-group"><label>Trainer *</label><select id="sf_trainer"></select></div>
+        <div class="form-group"><label>Member *</label>
+          <input type="text" id="sf_memberSearch" placeholder="Search member..." oninput="filterSessionMember(this.value)" autocomplete="off">
+          <div id="sf_memberList" style="background:var(--navy-700);border:1px solid var(--navy-600);border-radius:8px;max-height:130px;overflow-y:auto;display:none;position:relative;z-index:10"></div>
+          <input type="hidden" id="sf_memberId">
+        </div>
+      </div>
+      <div class="form-group"><label>Session Type *</label><select id="sf_type"><option value="">Select type</option><option>Personal Training</option><option>Cardio</option><option>Strength</option><option>Flexibility</option><option>Assessment</option></select></div>
+      <div class="form-row cols-3">
+        <div class="form-group"><label>Date *</label><input type="date" id="sf_date"></div>
+        <div class="form-group"><label>Start Time *</label><select id="sf_start"></select></div>
+        <div class="form-group"><label>End Time *</label><select id="sf_end"></select></div>
+      </div>
+      <div class="form-group"><label>Notes</label><textarea id="sf_notes" rows="2"></textarea></div>
+    </div>
+    <div class="modal-foot"><button class="btn-secondary" onclick="closeModal('sessionModal')">Cancel</button><button class="btn-primary" onclick="saveSession()">Save Session</button></div>
+  </div>
+</div>
+<!-- Plan Modal -->
+<div class="modal-overlay" id="planModal">
+  <div class="modal">
+    <div class="modal-head"><h2 id="planModalTitle">Add Plan</h2><button class="modal-close" onclick="closeModal('planModal')">✕</button></div>
+    <div class="modal-body">
+      <div id="planFormError" class="error-msg"></div>
+      <div class="form-row">
+        <div class="form-group"><label>Plan Name *</label><input type="text" id="plf_name"></div>
+        <div class="form-group"><label>Price (₱) *</label><input type="number" id="plf_price" min="1" step="0.01"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Duration (months) *</label><input type="number" id="plf_dur" min="1"></div>
+        <div class="form-group">
+          <label>Session Limit *</label>
+          <input type="number" id="plf_sessions" min="1" placeholder="Number of sessions">
+          <div class="unlimited-toggle"><input type="checkbox" id="plf_unlimited" onchange="toggleUnlimited(this)"> <label for="plf_unlimited">Unlimited sessions</label></div>
+        </div>
+      </div>
+      <div class="form-group"><label>Benefits</label><textarea id="plf_benefits" rows="3" placeholder="One benefit per line or comma-separated"></textarea></div>
+      <div class="form-group"><label>Status</label><select id="plf_status"><option value="Active">Active</option><option value="Inactive">Inactive</option></select></div>
+    </div>
+    <div class="modal-foot"><button class="btn-secondary" onclick="closeModal('planModal')">Cancel</button><button class="btn-primary" onclick="savePlan()">Save Plan</button></div>
+  </div>
+</div>
+<!-- User Modal -->
+<div class="modal-overlay" id="userModal">
+  <div class="modal">
+    <div class="modal-head"><h2 id="userModalTitle">Add User</h2><button class="modal-close" onclick="closeModal('userModal')">✕</button></div>
+    <div class="modal-body">
+      <div id="userFormError" class="error-msg"></div>
+      <div class="form-row">
+        <div class="form-group"><label>Full Name *</label><input type="text" id="uf_name"></div>
+        <div class="form-group"><label>Username *</label><input type="text" id="uf_user"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Password *</label><input type="password" id="uf_pass"></div>
+        <div class="form-group"><label>Confirm Password *</label><input type="password" id="uf_pass2"></div>
+      </div>
+      <div class="form-group"><label>Role *</label><select id="uf_role"><option value="staff">Staff</option><option value="trainer">Trainer</option></select></div>
+    </div>
+    <div class="modal-foot"><button class="btn-secondary" onclick="closeModal('userModal')">Cancel</button><button class="btn-primary" onclick="saveUser()">Save User</button></div>
+  </div>
+</div>
+<!-- Check-In Modal -->
+<div class="modal-overlay" id="checkinModal">
+  <div class="modal" style="max-width:400px">
+    <div class="modal-head"><h2>Check In Member</h2><button class="modal-close" onclick="closeModal('checkinModal')">✕</button></div>
+    <div class="modal-body">
+      <div id="checkinError" class="error-msg"></div>
+      <div class="form-group"><label>Select Member *</label><select id="ci_member"></select></div>
+    </div>
+    <div class="modal-foot"><button class="btn-secondary" onclick="closeModal('checkinModal')">Cancel</button><button class="btn-primary" onclick="doCheckin()">Confirm Check-In</button></div>
+  </div>
+</div>
+
+<!-- TOAST CONTAINER -->
+<div class="toast-wrap" id="toastWrap"></div>
+
+<script>
+// ============================= DATA LAYER =============================
+const KEY={users:'gms_users',members:'gms_members',payments:'gms_payments',sessions:'gms_sessions',plans:'gms_plans',attendance:'gms_attendance',loginAttempts:'gms_login_attempts'};
+const DB={
+  get:(k)=>{try{return JSON.parse(localStorage.getItem(k))||[];}catch{return[];}},
+  set:(k,v)=>localStorage.setItem(k,JSON.stringify(v)),
+  getOne:(k,id)=>DB.get(k).find(x=>x.id===id)
+};
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6);}
+function nextId(key,prefix){const items=DB.get(key);const num=(items.length+1).toString().padStart(4,'0');return `${prefix}-${num}`;}
+function addDays(dateStr,days){const d=new Date(dateStr);d.setDate(d.getDate()+days);return d.toISOString().split('T')[0];}
+function addMonths(dateStr,months){const d=new Date(dateStr);d.setMonth(d.getMonth()+months);return d.toISOString().split('T')[0];}
+function today(){return new Date().toISOString().split('T')[0];}
+function daysUntil(dateStr){const ms=new Date(dateStr)-new Date(today());return Math.ceil(ms/(1000*60*60*24));}
+function formatDate(dateStr){if(!dateStr)return'—';const d=new Date(dateStr);return d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});}
+function formatDateTime(dateStr){if(!dateStr)return'—';const d=new Date(dateStr);return d.toLocaleString('en-US',{month:'short',day:'numeric',year:'numeric',hour:'2-digit',minute:'2-digit'});}
+function formatFullDate(dateStr){const d=new Date(dateStr);return d.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});}
+
+// ============================= SEED DATA =============================
+function seedData(){
+  if(localStorage.getItem('gms_seeded')==='1')return;
+  // Users
+  const users=[
+    {id:'u1',name:'System Admin',username:'admin',password:'admin123',role:'admin',status:'active',createdAt:today()},
+    {id:'u2',name:'Marie Santos',username:'staff',password:'staff123',role:'staff',status:'active',createdAt:today()},
+    {id:'u3',name:'Coach Ryan',username:'trainer',password:'trainer123',role:'trainer',status:'active',createdAt:today()}
+  ];
+  DB.set(KEY.users,users);
+  // Plans
+  const plans=[
+    {id:'pl1',name:'Basic',price:500,duration:1,sessions:8,benefits:'Gym access\nLocker use',status:'Active'},
+    {id:'pl2',name:'Standard',price:900,duration:1,sessions:16,benefits:'Gym access\nLocker use\n1 trainer session',status:'Active'},
+    {id:'pl3',name:'Premium',price:1500,duration:3,sessions:'Unlimited',benefits:'Full access\nPriority trainer\nFree assessment',status:'Active'}
+  ];
+  DB.set(KEY.plans,plans);
+  // Members
+  const t=today();
+  const d3=addDays(t,2);
+  const d2=addDays(t,1);
+  const members=[
+    {id:'MEM-0001',name:'Juan Dela Cruz',contact:'09171234567',age:28,sex:'Male',address:'Davao City',ecName:'Maria Cruz',ecNum:'09181234567',planId:'pl1',startDate:addMonths(t,-1),expiryDate:d3,status:'Active',notes:'',createdAt:t},
+    {id:'MEM-0002',name:'Ana Garcia',contact:'09281234567',age:24,sex:'Female',address:'Tagum City',ecName:'Jose Garcia',ecNum:'09291234567',planId:'pl2',startDate:addMonths(t,-1),expiryDate:d2,status:'Active',notes:'Asthma — mild',createdAt:t},
+    {id:'MEM-0003',name:'Roberto Reyes',contact:'09171112222',age:35,sex:'Male',address:'Panabo City',ecName:'Lita Reyes',ecNum:'09182223333',planId:'pl3',startDate:addMonths(t,-3),expiryDate:addDays(t,30),status:'Active',notes:'',createdAt:t},
+    {id:'MEM-0004',name:'Liza Mendoza',contact:'09281115555',age:22,sex:'Female',address:'Davao City',ecName:'Ben Mendoza',ecNum:'09282226666',planId:'pl2',startDate:addMonths(t,-2),expiryDate:addDays(t,-15),status:'Expired',notes:'',createdAt:t},
+    {id:'MEM-0005',name:'Carlo Torres',contact:'09171118888',age:30,sex:'Male',address:'Digos City',ecName:'Linda Torres',ecNum:'09182229999',planId:'pl1',startDate:addMonths(t,-1),expiryDate:addDays(t,-5),status:'Expired',notes:'',createdAt:t},
+    {id:'MEM-0006',name:'Sofia Bautista',contact:'09281110001',age:26,sex:'Female',address:'Davao City',ecName:'Pedro Bautista',ecNum:'09282220002',planId:'pl3',startDate:addMonths(t,-3),expiryDate:addDays(t,60),status:'Active',notes:'',createdAt:t}
+  ];
+  DB.set(KEY.members,members);
+  // Payments
+  const payments=[
+    {id:'PAY-0001',memberId:'MEM-0001',memberName:'Juan Dela Cruz',planId:'pl1',planName:'Basic',amount:500,date:addDays(t,-30),newExpiry:d3,method:'Cash',notes:'',recordedBy:'staff',status:'Paid',createdAt:t},
+    {id:'PAY-0002',memberId:'MEM-0002',memberName:'Ana Garcia',planId:'pl2',planName:'Standard',amount:900,date:addDays(t,-30),newExpiry:d2,method:'GCash',notes:'',recordedBy:'staff',status:'Paid',createdAt:t},
+    {id:'PAY-0003',memberId:'MEM-0003',memberName:'Roberto Reyes',planId:'pl3',planName:'Premium',amount:1500,date:addDays(t,-90),newExpiry:addDays(t,30),method:'Bank Transfer',notes:'3-month premium',recordedBy:'admin',status:'Paid',createdAt:t},
+    {id:'PAY-0004',memberId:'MEM-0004',memberName:'Liza Mendoza',planId:'pl2',planName:'Standard',amount:900,date:addDays(t,-60),newExpiry:addDays(t,-15),method:'Cash',notes:'',recordedBy:'staff',status:'Paid',createdAt:t},
+    {id:'PAY-0005',memberId:'MEM-0006',memberName:'Sofia Bautista',planId:'pl3',planName:'Premium',amount:1500,date:addDays(t,-90),newExpiry:addDays(t,60),method:'GCash',notes:'',recordedBy:'admin',status:'Paid',createdAt:t}
+  ];
+  DB.set(KEY.payments,payments);
+  // Sessions
+  const sessions=[
+    {id:'ses1',trainerId:'u3',trainerName:'Coach Ryan',memberId:'MEM-0001',memberName:'Juan Dela Cruz',type:'Personal Training',date:t,start:'08:00',end:'09:00',notes:'',status:'Scheduled'},
+    {id:'ses2',trainerId:'u3',trainerName:'Coach Ryan',memberId:'MEM-0002',memberName:'Ana Garcia',type:'Cardio',date:t,start:'10:00',end:'11:00',notes:'',status:'Scheduled'},
+    {id:'ses3',trainerId:'u3',trainerName:'Coach Ryan',memberId:'MEM-0003',memberName:'Roberto Reyes',type:'Strength',date:addDays(t,1),start:'09:00',end:'10:00',notes:'Focus on legs',status:'Scheduled'},
+    {id:'ses4',trainerId:'u3',trainerName:'Coach Ryan',memberId:'MEM-0006',memberName:'Sofia Bautista',type:'Assessment',date:addDays(t,2),start:'14:00',end:'15:00',notes:'Initial assessment',status:'Scheduled'}
+  ];
+  DB.set(KEY.sessions,sessions);
+  localStorage.setItem('gms_seeded','1');
+}
+
+// ============================= AUTH =============================
+let currentUser=null;
+function getSession(){try{return JSON.parse(sessionStorage.getItem('gms_session'));}catch{return null;}}
+function setSession(u){sessionStorage.setItem('gms_session',JSON.stringify(u));}
+function clearSession(){sessionStorage.removeItem('gms_session');}
+
+function doLogin(){
+  const u=document.getElementById('loginUser').value.trim();
+  const p=document.getElementById('loginPass').value;
+  if(!u||!p){showLoginError('Please fill in all required fields.');return;}
+  const attempts=DB.get(KEY.loginAttempts)||{};
+  if((attempts[u]||0)>=3){showLoginError('Account locked. Contact admin.');return;}
+  // Check lockout in users
+  const users=DB.get(KEY.users);
+  const found=users.find(x=>x.username===u);
+  if(found&&found.status==='locked'){showLoginError('Account locked. Contact admin.');return;}
+  if(!found||found.password!==p){
+    const a=DB.get(KEY.loginAttempts)||{};
+    a[u]=(a[u]||0)+1;
+    DB.set(KEY.loginAttempts,a);
+    if(a[u]>=3)showLoginError('Account locked. Contact admin.');
+    else showLoginError('Invalid username or password.');
+    return;
+  }
+  const a=DB.get(KEY.loginAttempts)||{};
+  a[u]=0;DB.set(KEY.loginAttempts,a);
+  setSession(found);
+  currentUser=found;
+  loadApp();
+}
+function quickLogin(u,p){
+  document.getElementById('loginUser').value=u;
+  document.getElementById('loginPass').value=p;
+  doLogin();
+}
+function doLogout(){
+  clearSession();currentUser=null;
+  document.getElementById('app').classList.remove('active');
+  document.getElementById('loginPage').style.display='flex';
+  document.getElementById('loginUser').value='';
+  document.getElementById('loginPass').value='';
+  document.getElementById('loginError').style.display='none';
+}
+function showLoginError(msg){const el=document.getElementById('loginError');el.textContent=msg;el.style.display='block';}
+function showLogin(){document.getElementById('loginForm').style.display='block';document.getElementById('registerForm').style.display='none';}
+function showRegister(){document.getElementById('loginForm').style.display='none';document.getElementById('registerForm').style.display='block';}
+function doRegister(){
+  const name=document.getElementById('regName').value.trim();
+  const user=document.getElementById('regUser').value.trim();
+  const pass=document.getElementById('regPass').value;
+  const pass2=document.getElementById('regPass2').value;
+  const role=document.getElementById('regRole').value;
+  const errEl=document.getElementById('regError');
+  errEl.style.display='none';
+  if(!name||!user||!pass||!pass2||!role){errEl.textContent='Please fill in all required fields.';errEl.style.display='block';return;}
+  if(role==='admin'){errEl.textContent='Admin accounts cannot be self-registered.';errEl.style.display='block';return;}
+  if(pass.length<6){errEl.textContent='Password must be at least 6 characters.';errEl.style.display='block';return;}
+  if(pass!==pass2){errEl.textContent='Passwords do not match.';errEl.style.display='block';return;}
+  const users=DB.get(KEY.users);
+  if(users.find(x=>x.username===user)){errEl.textContent='Username already taken.';errEl.style.display='block';return;}
+  users.push({id:uid(),name,username:user,password:pass,role,status:'active',createdAt:today()});
+  DB.set(KEY.users,users);
+  const suc=document.getElementById('regSuccess');
+  suc.textContent='Account created! Redirecting to login...';suc.style.display='block';
+  setTimeout(()=>{showLogin();document.getElementById('loginUser').value=user;suc.style.display='none';errEl.style.display='none';},2000);
+}
+function togglePw(id,btn){const el=document.getElementById(id);el.type=el.type==='password'?'text':'password';btn.textContent=el.type==='password'?'👁':'🙈';}
+function updateStrength(val){
+  const bars=[document.getElementById('ps1'),document.getElementById('ps2'),document.getElementById('ps3')];
+  const lbl=document.getElementById('psLabel');
+  bars.forEach(b=>{b.className='pw-strength-bar'});
+  if(!val){lbl.textContent='';return;}
+  let score=0;
+  if(val.length>=6)score++;if(val.length>=10)score++;
+  if(/[A-Z]/.test(val)&&/[0-9]/.test(val))score++;
+  const levels=['weak','fair','strong'];
+  const labels=['Weak','Fair','Strong'];
+  for(let i=0;i<score;i++)bars[i].classList.add(levels[Math.min(score-1,2)]);
+  lbl.textContent=labels[Math.min(score-1,2)]||'';
+}
+
+// ============================= APP LOAD =============================
+function loadApp(){
+  document.getElementById('loginPage').style.display='none';
+  document.getElementById('app').classList.add('active');
+  buildSidebar();
+  renderTopbar();
+  scanRenewals();
+  navigate('dashboard');
+}
+function buildSidebar(){
+  const u=currentUser;
+  const av=document.getElementById('sideUserAvatar');
+  av.className='user-avatar avatar-'+u.role;
+  av.textContent=initials(u.name);
+  document.getElementById('sideUserName').textContent=u.name;
+  const rb=document.getElementById('sideUserRole');
+  rb.className='role-badge rb-'+u.role;rb.textContent=u.role;
+  const nav=document.getElementById('sideNav');
+  const items=[
+    {id:'dashboard',icon:'📊',label:'Dashboard',roles:['admin','staff','trainer']},
+    {id:'members',icon:'👥',label:'Members',roles:['admin','staff']},
+    {id:'billing',icon:'💳',label:'Billing & Payments',roles:['admin','staff']},
+    {id:'schedule',icon:'📅',label:'Trainer Schedule',roles:['admin','staff','trainer']},
+    {id:'notifications',icon:'🔔',label:'Renewal Reminders',roles:['admin','staff'],badge:'notifBadge'},
+    {id:'plans',icon:'📋',label:'Membership Plans',roles:['admin']},
+    {id:'reports',icon:'📈',label:'Reports',roles:['admin']},
+    {id:'users',icon:'👤',label:'User Management',roles:['admin']}
+  ];
+  nav.innerHTML=items.filter(i=>i.roles.includes(u.role)).map(i=>`
+    <div class="nav-item" id="nav-${i.id}" onclick="navigate('${i.id}')">
+      <span class="nav-icon">${i.icon}</span> ${i.label}
+      ${i.badge?`<span class="nav-badge" id="${i.badge}" style="display:none">0</span>`:''}
+    </div>`).join('');
+}
+function renderTopbar(){
+  document.getElementById('topDate').textContent=formatFullDate(today());
+  const av=document.getElementById('topAvatar');
+  av.className='user-avatar avatar-'+currentUser.role;
+  av.textContent=initials(currentUser.name);
+}
+function navigate(panel){
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  const ni=document.getElementById('nav-'+panel);
+  if(ni)ni.classList.add('active');
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  const titles={dashboard:'Dashboard',members:'Member Management',billing:'Billing & Payments',schedule:'Trainer Schedule',notifications:'Renewal Reminders',plans:'Membership Plans',reports:'Reports',users:'User Management'};
+  document.getElementById('pageTitle').textContent=titles[panel]||'';
+  const panelEl=document.getElementById('panel'+capitalize(panel));
+  if(panelEl)panelEl.classList.add('active');
+  renderPanel(panel);
+}
+function capitalize(s){return s.charAt(0).toUpperCase()+s.slice(1);}
+function initials(name){return name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);}
+
+// ============================= TOAST =============================
+function toast(msg,type='success'){
+  const wrap=document.getElementById('toastWrap');
+  const icons={success:'✅',error:'❌',info:'ℹ️'};
+  const t=document.createElement('div');
+  t.className=`toast ${type}`;
+  t.innerHTML=`<span class="toast-icon">${icons[type]}</span><span>${msg}</span>`;
+  wrap.appendChild(t);
+  setTimeout(()=>{t.classList.add('removing');setTimeout(()=>t.remove(),300);},3000);
+}
+
+// ============================= MODALS =============================
+function openModal(id){document.getElementById(id).classList.add('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+let currentProfileId=null;
+function openConfirm(title,msg,onOk,btnLabel='Delete'){
+  document.getElementById('confirmTitle').textContent=title;
+  document.getElementById('confirmMsg').textContent=msg;
+  const btn=document.getElementById('confirmOkBtn');
+  btn.textContent=btnLabel;
+  btn.onclick=()=>{onOk();closeModal('confirmModal');};
+  openModal('confirmModal');
+}
+
+// ============================= RENEWALS SCAN =============================
+function scanRenewals(){
+  const members=DB.get(KEY.members).filter(m=>m.status==='Active'||m.status==='Expiring Soon');
+  const expiring=members.filter(m=>{const d=daysUntil(m.expiryDate);return d>=0&&d<=3;});
+  // Update statuses
+  const all=DB.get(KEY.members);
+  all.forEach(m=>{
+    if(m.status==='Archived')return;
+    const d=daysUntil(m.expiryDate);
+    if(d<0)m.status='Expired';
+    else if(d<=3)m.status='Expiring Soon';
+    else if(m.status!=='Suspended')m.status='Active';
+  });
+  DB.set(KEY.members,all);
+  const badge=document.getElementById('notifBadge');
+  if(badge){const c=expiring.length;badge.textContent=c;badge.style.display=c>0?'flex':'none';}
+}
+
+// ============================= PANEL ROUTER =============================
+function renderPanel(p){
+  const map={dashboard:renderDashboard,members:renderMembers,billing:renderBilling,schedule:renderSchedule,notifications:renderNotifications,plans:renderPlans,reports:renderReports,users:renderUsers};
+  if(map[p])map[p]();
+}
+
+// ======================================================================
+// PANEL: DASHBOARD
+// ======================================================================
+function renderDashboard(){
+  const el=document.getElementById('panelDashboard');
+  const role=currentUser.role;
+  if(role==='admin')el.innerHTML=buildAdminDashboard();
+  else if(role==='staff')el.innerHTML=buildStaffDashboard();
+  else el.innerHTML=buildTrainerDashboard();
+}
+function buildAdminDashboard(){
+  const members=DB.get(KEY.members).filter(m=>m.status!=='Archived');
+  const active=members.filter(m=>m.status==='Active'||m.status==='Expiring Soon');
+  const expiring=members.filter(m=>{const d=daysUntil(m.expiryDate);return d>=0&&d<=7;});
+  const payments=DB.get(KEY.payments);
+  const thisMonth=new Date();
+  const monthRev=payments.filter(p=>{const d=new Date(p.date);return d.getMonth()===thisMonth.getMonth()&&d.getFullYear()===thisMonth.getFullYear();}).reduce((a,p)=>a+Number(p.amount),0);
+  const recent=payments.slice(-5).reverse();
+  const plans=DB.get(KEY.plans);
+  // Revenue last 6 months
+  const revData=[];
+  for(let i=5;i>=0;i--){
+    const d=new Date();d.setMonth(d.getMonth()-i);
+    const mn=d.toLocaleString('en-US',{month:'short'});
+    const yr=d.getFullYear();const mo=d.getMonth();
+    const rev=payments.filter(p=>{const pd=new Date(p.date);return pd.getMonth()===mo&&pd.getFullYear()===yr;}).reduce((a,p)=>a+Number(p.amount),0);
+    revData.push({label:mn,value:rev});
+  }
+  const maxRev=Math.max(...revData.map(r=>r.value),100);
+  const barW=40;const chartH=120;const gap=14;
+  const bars=revData.map((r,i)=>{
+    const bh=r.value>0?Math.max(4,(r.value/maxRev)*chartH):4;
+    const x=i*(barW+gap)+10;const y=chartH-bh+20;
+    return `<g>
+      <rect x="${x}" y="${y}" width="${barW}" height="${bh}" rx="4" fill="url(#barGrad)"/>
+      <text x="${x+barW/2}" y="${chartH+35}" text-anchor="middle" fill="#94a3b8" font-size="10">${r.label}</text>
+      ${r.value>0?`<text x="${x+barW/2}" y="${y-4}" text-anchor="middle" fill="#f97316" font-size="9">₱${r.value>=1000?(r.value/1000).toFixed(1)+'k':r.value}</text>`:''}
+    </g>`;}).join('');
+  // Donut chart
+  const planCounts={};
+  members.forEach(m=>{if(!m.planId)return;const pl=plans.find(p=>p.id===m.planId);if(pl)planCounts[pl.name]=(planCounts[pl.name]||0)+1;});
+  const total=Object.values(planCounts).reduce((a,b)=>a+b,0)||1;
+  const colors=['#f97316','#f59e0b','#22c55e','#60a5fa'];
+  let angle=0;const donutPaths=[];const legend=[];
+  Object.entries(planCounts).forEach(([name,count],i)=>{
+    const pct=count/total;const slice=pct*2*Math.PI;
+    const x1=50+40*Math.sin(angle);const y1=50-40*Math.cos(angle);
+    const x2=50+40*Math.sin(angle+slice);const y2=50-40*Math.cos(angle+slice);
+    const big=slice>Math.PI?1:0;
+    if(count>0)donutPaths.push(`<path d="M50,50 L${x1},${y1} A40,40 0 ${big},1 ${x2},${y2} Z" fill="${colors[i%colors.length]}" opacity=".85"/>`);
+    legend.push(`<div style="display:flex;align-items:center;gap:6px;font-size:11px;color:#94a3b8"><span style="width:10px;height:10px;border-radius:2px;background:${colors[i%colors.length]};flex-shrink:0"></span>${name}: ${count} (${Math.round(pct*100)}%)</div>`);
+    angle+=slice;
+  });
+  return `
+  <div class="stats-grid">
+    <div class="stat-card orange"><div class="stat-label">Total Members</div><div class="stat-value">${members.length}</div><div class="stat-hint">Registered members</div></div>
+    <div class="stat-card green"><div class="stat-label">Active Members</div><div class="stat-value">${active.length}</div><div class="stat-hint">Current active</div></div>
+    <div class="stat-card gold"><div class="stat-label">Expiring Soon</div><div class="stat-value">${expiring.length}</div><div class="stat-hint">Within 7 days</div></div>
+    <div class="stat-card blue" style="border-left-color:#f59e0b"><div class="stat-label">Monthly Revenue</div><div class="stat-value" style="font-size:24px">₱${monthRev.toLocaleString()}</div><div class="stat-hint">This calendar month</div></div>
+  </div>
+  <div class="charts-grid">
+    <div class="chart-card">
+      <div class="chart-title">Revenue — Last 6 Months</div>
+      <svg viewBox="0 0 320 160" style="height:160px">
+        <defs><linearGradient id="barGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#f97316"/><stop offset="100%" stop-color="#f59e0b"/></linearGradient></defs>
+        ${bars}
+      </svg>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">Plan Distribution</div>
+      <div style="display:flex;align-items:center;gap:20px">
+        <svg viewBox="0 0 100 100" style="width:100px;height:100px;flex-shrink:0">
+          ${donutPaths.join('')}
+          <circle cx="50" cy="50" r="22" fill="#1e293b"/>
+          <text x="50" y="54" text-anchor="middle" fill="#f97316" font-size="11" font-weight="700">${total}</text>
+        </svg>
+        <div style="display:flex;flex-direction:column;gap:6px">${legend.join('')}</div>
+      </div>
+    </div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+    <div class="table-card">
+      <div class="table-header"><h3>Recent Payments</h3></div>
+      <table><thead><tr><th>Member</th><th>Plan</th><th>Amount</th><th>Date</th></tr></thead><tbody>
+      ${recent.length?recent.map(p=>`<tr><td>${p.memberName}</td><td>${p.planName}</td><td style="color:var(--green)">₱${Number(p.amount).toLocaleString()}</td><td>${formatDate(p.date)}</td></tr>`).join(''):`<tr><td colspan="4"><div class="empty-state"><div class="empty-icon">💳</div><p>No payments yet</p></div></td></tr>`}
+      </tbody></table>
+    </div>
+    <div class="table-card">
+      <div class="table-header"><h3>Expiring Memberships</h3></div>
+      <table><thead><tr><th>Member</th><th>Plan</th><th>Expiry</th><th>Days Left</th></tr></thead><tbody>
+      ${expiring.length?expiring.map(m=>{const d=daysUntil(m.expiryDate);const pl=DB.get(KEY.plans).find(p=>p.id===m.planId);return`<tr style="background:${d<=3?'rgba(239,68,68,.06)':'rgba(245,158,11,.05)'}"><td>${m.name}</td><td>${pl?pl.name:'—'}</td><td>${formatDate(m.expiryDate)}</td><td><span class="days-badge ${d<=3?'days-urgent':'days-warn'}">${d}d</span></td></tr>`}).join(''):`<tr><td colspan="4"><div class="empty-state"><div class="empty-icon">✅</div><p>No expiring memberships</p></div></td></tr>`}
+      </tbody></table>
+    </div>
+  </div>`;
+}
+function buildStaffDashboard(){
+  const members=DB.get(KEY.members).filter(m=>m.status!=='Archived');
+  const today_=today();
+  const attendance=DB.get(KEY.attendance).filter(a=>a.date===today_);
+  const expiring3=members.filter(m=>{const d=daysUntil(m.expiryDate);return d>=0&&d<=3;});
+  const newThisMonth=members.filter(m=>{const d=new Date(m.createdAt||m.startDate);const now=new Date();return d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear();});
+  const todayLog=attendance.map(a=>{const m=DB.get(KEY.members).find(x=>x.id===a.memberId);const pl=m?DB.get(KEY.plans).find(p=>p.id===m.planId):null;return{...a,memberName:m?m.name:'Unknown',planName:pl?pl.name:'—'};});
+  return `
+  <div class="stats-grid">
+    <div class="stat-card orange"><div class="stat-label">Total Members</div><div class="stat-value">${members.length}</div></div>
+    <div class="stat-card green"><div class="stat-label">Today's Check-Ins</div><div class="stat-value">${attendance.length}</div></div>
+    <div class="stat-card gold"><div class="stat-label">Pending Renewals</div><div class="stat-value">${expiring3.length}</div><div class="stat-hint">Expiring within 3 days</div></div>
+    <div class="stat-card blue"><div class="stat-label">New This Month</div><div class="stat-value">${newThisMonth.length}</div></div>
+  </div>
+  <div class="checkin-btn-wrap"><button class="btn-primary" style="width:auto" onclick="openCheckin()">✅ Check In Member</button></div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+    <div class="table-card">
+      <div class="table-header"><h3>Today's Check-Ins</h3></div>
+      <table><thead><tr><th>Member</th><th>Time</th><th>Plan</th></tr></thead><tbody>
+      ${todayLog.length?todayLog.map(a=>`<tr><td>${a.memberName}</td><td>${a.time}</td><td>${a.planName}</td></tr>`).join(''):`<tr><td colspan="3"><div class="empty-state"><div class="empty-icon">📋</div><p>No check-ins today</p></div></td></tr>`}
+      </tbody></table>
+    </div>
+    <div class="table-card">
+      <div class="table-header"><h3>Renewal Reminders</h3></div>
+      <table><thead><tr><th>Member</th><th>Expiry</th><th>Days</th><th></th></tr></thead><tbody>
+      ${expiring3.length?expiring3.map(m=>{const d=daysUntil(m.expiryDate);return`<tr><td>${m.name}</td><td>${formatDate(m.expiryDate)}</td><td><span class="days-badge ${d<=1?'days-urgent':'days-warn'}">${d}d</span></td><td><button class="btn-primary btn-sm" onclick="openPaymentForMember('${m.id}')">Pay</button></td></tr>`;}).join(''):`<tr><td colspan="4"><div class="empty-state"><div class="empty-icon">✅</div><p>No reminders</p></div></td></tr>`}
+      </tbody></table>
+    </div>
+  </div>`;
+}
+function buildTrainerDashboard(){
+  const u=currentUser;
+  const today_=today();
+  const week=addDays(today_,7);
+  const sessions=DB.get(KEY.sessions).filter(s=>s.trainerId===u.id);
+  const todaySessions=sessions.filter(s=>s.date===today_&&s.status==='Scheduled');
+  const weekSessions=sessions.filter(s=>s.date>=today_&&s.date<=week);
+  const assignedMembers=[...new Set(sessions.map(s=>s.memberId))];
+  const upcoming=weekSessions.slice(0,10);
+  return `
+  <div class="stats-grid">
+    <div class="stat-card orange"><div class="stat-label">My Sessions Today</div><div class="stat-value">${todaySessions.length}</div></div>
+    <div class="stat-card green"><div class="stat-label">Sessions This Week</div><div class="stat-value">${weekSessions.length}</div></div>
+    <div class="stat-card gold"><div class="stat-label">Total Assigned Members</div><div class="stat-value">${assignedMembers.length}</div></div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+    <div class="table-card">
+      <div class="table-header"><h3>Today's Schedule</h3></div>
+      <table><thead><tr><th>Time</th><th>Member</th><th>Type</th></tr></thead><tbody>
+      ${todaySessions.length?todaySessions.map(s=>`<tr><td>${s.start}–${s.end}</td><td>${s.memberName}</td><td>${s.type}</td></tr>`).join(''):`<tr><td colspan="3"><div class="empty-state"><div class="empty-icon">📅</div><p>No sessions today</p></div></td></tr>`}
+      </tbody></table>
+    </div>
+    <div class="table-card">
+      <div class="table-header"><h3>Upcoming Sessions (7 days)</h3></div>
+      <table><thead><tr><th>Date</th><th>Time</th><th>Member</th><th>Type</th></tr></thead><tbody>
+      ${upcoming.length?upcoming.map(s=>`<tr><td>${formatDate(s.date)}</td><td>${s.start}</td><td>${s.memberName}</td><td>${s.type}</td></tr>`).join(''):`<tr><td colspan="4"><div class="empty-state"><div class="empty-icon">📅</div><p>No upcoming sessions</p></div></td></tr>`}
+      </tbody></table>
+    </div>
+  </div>`;
+}
+
+// ======================================================================
+// PANEL: MEMBERS
+// ======================================================================
+let memberPage=1;let memberSearch='';let memberStatusFilter='All';let memberPlanFilter='All';
+function renderMembers(){
+  const el=document.getElementById('panelMembers');
+  const plans=DB.get(KEY.plans);
+  const planOpts=plans.map(p=>`<option value="${p.id}">${p.name}</option>`).join('');
+  el.innerHTML=`
+  <div class="page-actions">
+    <div class="table-controls">
+      <input class="search-input" placeholder="🔍 Search by name or ID…" value="${memberSearch}" oninput="memberSearch=this.value;memberPage=1;refreshMemberTable()">
+      <select class="filter-sel" onchange="memberStatusFilter=this.value;memberPage=1;refreshMemberTable()">
+        <option>All</option><option>Active</option><option>Expired</option><option>Expiring Soon</option><option>Suspended</option>
+      </select>
+      <select class="filter-sel" onchange="memberPlanFilter=this.value;memberPage=1;refreshMemberTable()">
+        <option value="All">All Plans</option>${planOpts}
+      </select>
+    </div>
+    <button class="btn-primary" onclick="openMemberModal()">+ Add New Member</button>
+  </div>
+  <div class="table-card" id="memberTableCard"></div>`;
+  refreshMemberTable();
+}
+function refreshMemberTable(){
+  let data=DB.get(KEY.members).filter(m=>m.status!=='Archived');
+  if(memberSearch){const s=memberSearch.toLowerCase();data=data.filter(m=>m.name.toLowerCase().includes(s)||m.id.toLowerCase().includes(s));}
+  if(memberStatusFilter!=='All')data=data.filter(m=>m.status===memberStatusFilter);
+  if(memberPlanFilter!=='All')data=data.filter(m=>m.planId===memberPlanFilter);
+  const perPage=10;const total=data.length;const pages=Math.ceil(total/perPage)||1;
+  const slice=data.slice((memberPage-1)*perPage,memberPage*perPage);
+  const plans=DB.get(KEY.plans);
+  const rows=slice.length?slice.map(m=>{
+    const pl=plans.find(p=>p.id===m.planId);
+    const badgeCls={Active:'badge-active',Expired:'badge-expired',Suspended:'badge-suspended','Expiring Soon':'badge-expiring'}[m.status]||'badge-suspended';
+    return`<tr>
+      <td>${m.id}</td>
+      <td><div style="display:flex;align-items:center;gap:8px"><div class="member-avatar">${initials(m.name)}</div>${m.name}</div></td>
+      <td>${m.contact}</td>
+      <td>${pl?pl.name:'—'}</td>
+      <td>${formatDate(m.startDate)}</td>
+      <td>${formatDate(m.expiryDate)}</td>
+      <td><span class="badge ${badgeCls}">${m.status}</span></td>
+      <td><div class="td-actions">
+        <button class="btn-icon" title="View" onclick="viewMember('${m.id}')">👁</button>
+        <button class="btn-icon" title="Edit" onclick="openMemberModal('${m.id}')">✏️</button>
+        <button class="btn-icon" title="Delete" style="color:var(--red)" onclick="deleteMember('${m.id}')">🗑️</button>
+      </div></td>
+    </tr>`;}).join(''):`<tr><td colspan="8"><div class="empty-state"><div class="empty-icon">👥</div><p>No members found</p></div></td></tr>`;
+  let pag='';
+  if(pages>1){
+    pag=`<div class="pagination">
+      <button class="page-btn" onclick="memberPage=${memberPage-1};refreshMemberTable()" ${memberPage===1?'disabled':''}>‹</button>
+      ${Array.from({length:pages},(_,i)=>`<button class="page-btn ${i+1===memberPage?'active':''}" onclick="memberPage=${i+1};refreshMemberTable()">${i+1}</button>`).join('')}
+      <button class="page-btn" onclick="memberPage=${memberPage+1};refreshMemberTable()" ${memberPage===pages?'disabled':''}>›</button>
+      <span class="page-info">Showing ${(memberPage-1)*perPage+1}–${Math.min(memberPage*perPage,total)} of ${total}</span>
+    </div>`;}
+  document.getElementById('memberTableCard').innerHTML=`
+    <div class="table-header"><h3>Members <span style="font-size:12px;font-weight:400;color:var(--gray-500);margin-left:6px">${total} record${total!==1?'s':''}</span></h3></div>
+    <div style="overflow-x:auto"><table><thead><tr><th>ID</th><th>Name</th><th>Contact</th><th>Plan</th><th>Start</th><th>Expiry</th><th>Status</th><th>Actions</th></tr></thead><tbody>${rows}</tbody></table></div>
+    ${pag}`;
+}
+let editingMemberId=null;
+function openMemberModal(id=null){
+  editingMemberId=id;
+  document.getElementById('memberModalTitle').textContent=id?'Edit Member':'Add New Member';
+  document.getElementById('memberFormError').style.display='none';
+  const plans=DB.get(KEY.plans).filter(p=>p.status==='Active');
+  document.getElementById('mf_plan').innerHTML=plans.map(p=>`<option value="${p.id}">${p.name}</option>`).join('');
+  if(id){
+    const m=DB.getOne(KEY.members,id);
+    if(!m)return;
+    document.getElementById('mf_name').value=m.name||'';
+    document.getElementById('mf_contact').value=m.contact||'';
+    document.getElementById('mf_age').value=m.age||'';
+    document.getElementById('mf_sex').value=m.sex||'';
+    document.getElementById('mf_plan').value=m.planId||'';
+    document.getElementById('mf_start').value=m.startDate||'';
+    document.getElementById('mf_address').value=m.address||'';
+    document.getElementById('mf_ecname').value=m.ecName||'';
+    document.getElementById('mf_ecnum').value=m.ecNum||'';
+    document.getElementById('mf_notes').value=m.notes||'';
+  } else {
+    ['mf_name','mf_contact','mf_age','mf_address','mf_ecname','mf_ecnum','mf_notes'].forEach(id=>document.getElementById(id).value='');
+    document.getElementById('mf_sex').value='';
+    document.getElementById('mf_start').value=today();
+  }
+  openModal('memberModal');
+}
+function saveMember(){
+  const name=document.getElementById('mf_name').value.trim();
+  const contact=document.getElementById('mf_contact').value.trim();
+  const planId=document.getElementById('mf_plan').value;
+  const startDate=document.getElementById('mf_start').value;
+  const err=document.getElementById('memberFormError');
+  err.style.display='none';
+  if(!name||!contact||!planId||!startDate){err.textContent='Please fill in all required fields.';err.style.display='block';return;}
+  const members=DB.get(KEY.members);
+  if(!editingMemberId){
+    const dup=members.find(m=>m.name.toLowerCase()===name.toLowerCase()&&m.contact===contact&&m.status!=='Archived');
+    if(dup){err.textContent='Member already registered.';err.style.display='block';return;}
+  }
+  const plan=DB.getOne(KEY.plans,planId);
+  const expiryDate=addMonths(startDate,plan?plan.duration:1);
+  const data={
+    name,contact,age:document.getElementById('mf_age').value,sex:document.getElementById('mf_sex').value,
+    planId,startDate,expiryDate,address:document.getElementById('mf_address').value.trim(),
+    ecName:document.getElementById('mf_ecname').value.trim(),ecNum:document.getElementById('mf_ecnum').value.trim(),
+    notes:document.getElementById('mf_notes').value.trim(),status:'Active'
+  };
+  if(editingMemberId){
+    const idx=members.findIndex(m=>m.id===editingMemberId);
+    if(idx>-1)members[idx]={...members[idx],...data};
+    DB.set(KEY.members,members);toast('Member updated successfully.');
+  } else {
+    const newId=nextId(KEY.members,'MEM');
+    members.push({id:newId,...data,createdAt:today()});
+    DB.set(KEY.members,members);toast('Member Profile Created');
+  }
+  closeModal('memberModal');renderMembers();scanRenewals();
+}
+function deleteMember(id){
+  const m=DB.getOne(KEY.members,id);
+  openConfirm('Delete Member',`Are you sure you want to delete ${m?m.name:'this member'}? This cannot be undone.`,()=>{
+    const members=DB.get(KEY.members);const idx=members.findIndex(m=>m.id===id);
+    if(idx>-1)members[idx].status='Archived';
+    DB.set(KEY.members,members);toast('Member archived.');renderMembers();
+  });
+}
+function viewMember(id){
+  currentProfileId=id;
+  const m=DB.getOne(KEY.members,id);
+  if(!m)return;
+  const plan=DB.getOne(KEY.plans,m.planId);
+  const payments=DB.get(KEY.payments).filter(p=>p.memberId===id);
+  const sessions=DB.get(KEY.sessions).filter(s=>s.memberId===id);
+  const badgeCls={Active:'badge-active',Expired:'badge-expired',Suspended:'badge-suspended','Expiring Soon':'badge-expiring'}[m.status]||'';
+  document.getElementById('profileModalBody').innerHTML=`
+  <div class="profile-section">
+    <div style="display:flex;align-items:center;gap:14px;margin-bottom:16px">
+      <div class="user-avatar avatar-admin" style="width:52px;height:52px;font-size:18px">${initials(m.name)}</div>
+      <div><div style="font-size:20px;font-weight:800;font-family:'Barlow Condensed',sans-serif">${m.name}</div>
+      <div style="color:var(--gray-500);font-size:12px">${m.id}</div>
+      <span class="badge ${badgeCls}" style="margin-top:4px">${m.status}</span></div>
+    </div>
+    <h4>Personal Information</h4>
+    <div class="profile-grid">
+      <div class="profile-field"><label>Contact</label><p>${m.contact||'—'}</p></div>
+      <div class="profile-field"><label>Age / Sex</label><p>${m.age||'—'} / ${m.sex||'—'}</p></div>
+      <div class="profile-field"><label>Address</label><p>${m.address||'—'}</p></div>
+      <div class="profile-field"><label>Emergency Contact</label><p>${m.ecName||'—'} ${m.ecNum?'('+m.ecNum+')':''}</p></div>
+    </div>
+  </div>
+  <div class="profile-section">
+    <h4>Membership</h4>
+    <div class="profile-grid">
+      <div class="profile-field"><label>Plan</label><p>${plan?plan.name:'—'}</p></div>
+      <div class="profile-field"><label>Start Date</label><p>${formatDate(m.startDate)}</p></div>
+      <div class="profile-field"><label>Expiry Date</label><p>${formatDate(m.expiryDate)}</p></div>
+      <div class="profile-field"><label>Days Remaining</label><p>${daysUntil(m.expiryDate)} days</p></div>
+    </div>
+    ${m.notes?`<div class="profile-field" style="margin-top:10px"><label>Notes</label><p>${m.notes}</p></div>`:''}
+  </div>
+  <div class="profile-section">
+    <h4>Payment History</h4>
+    ${payments.length?`<table style="width:100%"><thead><tr><th>ID</th><th>Plan</th><th>Amount</th><th>Date</th><th>Method</th></tr></thead><tbody>${payments.map(p=>`<tr><td>${p.id}</td><td>${p.planName}</td><td style="color:var(--green)">₱${Number(p.amount).toLocaleString()}</td><td>${formatDate(p.date)}</td><td>${p.method}</td></tr>`).join('')}</tbody></table>`:
+    '<div class="empty-state" style="padding:20px"><div class="empty-icon">💳</div><p>No payments recorded</p></div>'}
+  </div>
+  <div class="profile-section">
+    <h4>Session History</h4>
+    ${sessions.length?`<table style="width:100%"><thead><tr><th>Date</th><th>Trainer</th><th>Type</th><th>Status</th></tr></thead><tbody>${sessions.map(s=>`<tr><td>${formatDate(s.date)}</td><td>${s.trainerName}</td><td>${s.type}</td><td><span class="badge badge-${s.status.toLowerCase()}">${s.status}</span></td></tr>`).join('')}</tbody></table>`:
+    '<div class="empty-state" style="padding:20px"><div class="empty-icon">📅</div><p>No sessions</p></div>'}
+  </div>`;
+  openModal('profileModal');
+}
+function openEditFromProfile(){closeModal('profileModal');openMemberModal(currentProfileId);}
+
+// ======================================================================
+// PANEL: BILLING
+// ======================================================================
+let billingSearch='';let billingFromDate='';let billingToDate='';let billingPlanFilter='All';let billingPage=1;
+function renderBilling(){
+  const el=document.getElementById('panelBilling');
+  const plans=DB.get(KEY.plans);
+  const planOpts=plans.map(p=>`<option value="${p.id}">${p.name}</option>`).join('');
+  el.innerHTML=`
+  <div class="page-actions">
+    <div class="table-controls">
+      <input class="search-input" placeholder="🔍 Search member…" value="${billingSearch}" oninput="billingSearch=this.value;billingPage=1;refreshBillingTable()">
+      <input type="date" class="search-input" style="min-width:130px" value="${billingFromDate}" onchange="billingFromDate=this.value;billingPage=1;refreshBillingTable()">
+      <input type="date" class="search-input" style="min-width:130px" value="${billingToDate}" onchange="billingToDate=this.value;billingPage=1;refreshBillingTable()">
+      <select class="filter-sel" onchange="billingPlanFilter=this.value;billingPage=1;refreshBillingTable()">
+        <option value="All">All Plans</option>${planOpts}
+      </select>
+    </div>
+    <button class="btn-primary" onclick="openPaymentModal()">+ Record Payment</button>
+  </div>
+  <div class="table-card" id="billingTableCard"></div>`;
+  refreshBillingTable();
+}
+function refreshBillingTable(){
+  let data=DB.get(KEY.payments);
+  if(billingSearch){const s=billingSearch.toLowerCase();data=data.filter(p=>p.memberName.toLowerCase().includes(s));}
+  if(billingFromDate)data=data.filter(p=>p.date>=billingFromDate);
+  if(billingToDate)data=data.filter(p=>p.date<=billingToDate);
+  if(billingPlanFilter!=='All')data=data.filter(p=>p.planId===billingPlanFilter);
+  data=data.slice().reverse();
+  const perPage=10;const total=data.length;const pages=Math.ceil(total/perPage)||1;
+  const slice=data.slice((billingPage-1)*perPage,billingPage*perPage);
+  const rows=slice.length?slice.map(p=>`<tr>
+    <td>${p.id}</td><td>${p.memberName}</td><td>${p.planName}</td>
+    <td style="color:var(--green);font-weight:600">₱${Number(p.amount).toLocaleString()}</td>
+    <td>${formatDate(p.date)}</td><td>${formatDate(p.newExpiry)}</td>
+    <td>${p.recordedBy||'—'}</td><td>${p.method||'—'}</td>
+    <td><span class="badge badge-paid">Paid</span></td>
+    <td><button class="btn-icon" title="View Receipt" onclick="viewReceipt('${p.id}')">🧾</button></td>
+  </tr>`).join(''):`<tr><td colspan="10"><div class="empty-state"><div class="empty-icon">💳</div><p>No payments found</p></div></td></tr>`;
+  let pag='';if(pages>1){pag=`<div class="pagination"><button class="page-btn" onclick="billingPage=${billingPage-1};refreshBillingTable()" ${billingPage===1?'disabled':''}>‹</button>${Array.from({length:pages},(_,i)=>`<button class="page-btn ${i+1===billingPage?'active':''}" onclick="billingPage=${i+1};refreshBillingTable()">${i+1}</button>`).join('')}<button class="page-btn" onclick="billingPage=${billingPage+1};refreshBillingTable()" ${billingPage===pages?'disabled':''}>›</button><span class="page-info">${total} records</span></div>`;}
+  document.getElementById('billingTableCard').innerHTML=`
+    <div class="table-header"><h3>Payments <span style="font-size:12px;font-weight:400;color:var(--gray-500);margin-left:6px">${total} record${total!==1?'s':''}</span></h3></div>
+    <div style="overflow-x:auto"><table><thead><tr><th>Pay ID</th><th>Member</th><th>Plan</th><th>Amount</th><th>Date</th><th>New Expiry</th><th>Recorded By</th><th>Method</th><th>Status</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>${pag}`;
+}
+function openPaymentModal(prefillMemberId=null){
+  document.getElementById('paymentModalTitle').textContent='Record Payment';
+  document.getElementById('paymentFormError').style.display='none';
+  document.getElementById('pf_memberSearch').value='';
+  document.getElementById('pf_memberId').value='';
+  document.getElementById('pf_memberList').style.display='none';
+  document.getElementById('pf_amount').value='';
+  document.getElementById('pf_date').value=today();
+  document.getElementById('pf_method').value='';
+  document.getElementById('pf_notes').value='';
+  const plans=DB.get(KEY.plans).filter(p=>p.status==='Active');
+  document.getElementById('pf_plan').innerHTML=`<option value="">Select plan</option>`+plans.map(p=>`<option value="${p.id}">${p.name} — ₱${p.price}</option>`).join('');
+  if(prefillMemberId){
+    const m=DB.getOne(KEY.members,prefillMemberId);
+    if(m){document.getElementById('pf_memberSearch').value=m.name;document.getElementById('pf_memberId').value=m.id;if(m.planId)document.getElementById('pf_plan').value=m.planId;}
+  }
+  openModal('paymentModal');
+}
+function openPaymentForMember(id){openPaymentModal(id);}
+function filterMemberDropdown(val){
+  const list=document.getElementById('pf_memberList');
+  if(!val){list.style.display='none';return;}
+  const members=DB.get(KEY.members).filter(m=>m.status!=='Archived'&&m.name.toLowerCase().includes(val.toLowerCase())).slice(0,8);
+  if(!members.length){list.style.display='none';return;}
+  list.innerHTML=members.map(m=>`<div style="padding:8px 12px;cursor:pointer;font-size:13px;border-bottom:1px solid rgba(255,255,255,.05)" onmousedown="selectPayMember('${m.id}','${m.name.replace(/'/g,"\\'")}','${m.planId||''}')" onmouseover="this.style.background='rgba(249,115,22,.1)'" onmouseout="this.style.background=''">${m.name} <span style="color:var(--gray-500);font-size:11px">${m.id}</span></div>`).join('');
+  list.style.display='block';
+}
+function selectPayMember(id,name,planId){
+  document.getElementById('pf_memberSearch').value=name;
+  document.getElementById('pf_memberId').value=id;
+  document.getElementById('pf_memberList').style.display='none';
+  if(planId)document.getElementById('pf_plan').value=planId;
+  onPayPlanChange();
+}
+function onPayPlanChange(){
+  const planId=document.getElementById('pf_plan').value;
+  if(!planId)return;
+  const plan=DB.getOne(KEY.plans,planId);
+  if(plan)document.getElementById('pf_amount').value=plan.price;
+}
+function savePayment(){
+  const memberId=document.getElementById('pf_memberId').value;
+  const planId=document.getElementById('pf_plan').value;
+  const amount=parseFloat(document.getElementById('pf_amount').value);
+  const date=document.getElementById('pf_date').value;
+  const method=document.getElementById('pf_method').value;
+  const err=document.getElementById('paymentFormError');
+  err.style.display='none';
+  if(!memberId||!planId||!amount||!date||!method){err.textContent='Please fill in all required fields.';err.style.display='block';return;}
+  if(!memberId){err.textContent='Member not found.';err.style.display='block';return;}
+  if(amount<=0){err.textContent='Invalid payment amount.';err.style.display='block';return;}
+  const member=DB.getOne(KEY.members,memberId);
+  const plan=DB.getOne(KEY.plans,planId);
+  const newExpiry=addMonths(date,plan?plan.duration:1);
+  const payments=DB.get(KEY.payments);
+  const newId=nextId(KEY.payments,'PAY');
+  payments.push({id:newId,memberId,memberName:member?member.name:'Unknown',planId,planName:plan?plan.name:'Unknown',amount,date,newExpiry,method,notes:document.getElementById('pf_notes').value.trim(),recordedBy:currentUser.username,status:'Paid',createdAt:today()});
+  DB.set(KEY.payments,payments);
+  // Update member
+  const members=DB.get(KEY.members);const idx=members.findIndex(m=>m.id===memberId);
+  if(idx>-1){members[idx].planId=planId;members[idx].expiryDate=newExpiry;members[idx].status='Active';}
+  DB.set(KEY.members,members);
+  toast('Payment recorded successfully.');closeModal('paymentModal');renderBilling();scanRenewals();
+}
+function viewReceipt(id){
+  const p=DB.getOne(KEY.payments,id);if(!p)return;
+  document.getElementById('receiptBody').innerHTML=`
+  <div class="receipt">
+    <h2>🏋️ FitCore GMS</h2>
+    <div class="receipt-sub">Gym Management System · Official Receipt</div>
+    <hr class="receipt-divider">
+    <div class="receipt-row"><span>Receipt No.</span><span>${p.id}</span></div>
+    <div class="receipt-row"><span>Member</span><span>${p.memberName}</span></div>
+    <div class="receipt-row"><span>Member ID</span><span>${p.memberId}</span></div>
+    <hr class="receipt-divider">
+    <div class="receipt-row"><span>Membership Plan</span><span>${p.planName}</span></div>
+    <div class="receipt-row"><span>Payment Date</span><span>${formatDate(p.date)}</span></div>
+    <div class="receipt-row"><span>Payment Method</span><span>${p.method}</span></div>
+    <div class="receipt-row"><span>New Expiry Date</span><span>${formatDate(p.newExpiry)}</span></div>
+    <hr class="receipt-divider">
+    <div class="receipt-row total"><span>Amount Paid</span><span>₱${Number(p.amount).toLocaleString()}</span></div>
+    <hr class="receipt-divider">
+    <div style="text-align:center;font-size:11px;color:var(--gray-500);margin-top:10px">Recorded by: ${p.recordedBy} · ${formatDateTime(p.createdAt)}</div>
+  </div>`;
+  openModal('receiptModal');
+}
+
+// ======================================================================
+// PANEL: SCHEDULE
+// ======================================================================
+let schedView='week';let schedTrainerFilter='all';
+function renderSchedule(){
+  const el=document.getElementById('panelSchedule');
+  const users=DB.get(KEY.users).filter(u=>u.role==='trainer');
+  const isTrainer=currentUser.role==='trainer';
+  const trainerOpts=isTrainer?`<option value="${currentUser.id}">${currentUser.name}</option>`:
+    `<option value="all">All Trainers</option>`+users.map(u=>`<option value="${u.id}">${u.name}</option>`).join('');
+  el.innerHTML=`
+  <div class="sched-controls">
+    <div class="view-toggle">
+      <button class="vt-btn ${schedView==='week'?'active':''}" onclick="schedView='week';renderSchedule()">📅 Week</button>
+      <button class="vt-btn ${schedView==='list'?'active':''}" onclick="schedView='list';renderSchedule()">📋 List</button>
+    </div>
+    <select class="filter-sel" ${isTrainer?'disabled':''} onchange="schedTrainerFilter=this.value;renderSchedule()">
+      ${trainerOpts}
+    </select>
+    ${!isTrainer?`<button class="btn-primary" style="margin-left:auto" onclick="openSessionModal()">+ Create Session</button>`:''}
+  </div>
+  <div id="schedContent"></div>`;
+  if(isTrainer)schedTrainerFilter=currentUser.id;
+  if(schedView==='week')renderWeekView();else renderListView();
+}
+function getSchedSessions(){
+  let s=DB.get(KEY.sessions);
+  if(schedTrainerFilter!=='all')s=s.filter(x=>x.trainerId===schedTrainerFilter);
+  return s;
+}
+function renderWeekView(){
+  const sessions=getSchedSessions();
+  const mon=getMondayOf(today());
+  const days=[];for(let i=0;i<7;i++)days.push(addDays(mon,i));
+  const times=[];for(let h=6;h<=21;h++)times.push(`${h.toString().padStart(2,'0')}:00`);
+  const colors={'u3':'#f97316','u2':'#60a5fa'};function getColor(tid){return colors[tid]||'#22c55e';}
+  const dayHeaders=days.map(d=>{const dd=new Date(d);return`<div class="wh-cell">${dd.toLocaleString('en-US',{weekday:'short'})}<br><span style="font-size:13px;font-weight:700;color:${d===today()?'var(--orange)':'inherit'}">${dd.getDate()}</span></div>`;}).join('');
+  const timeSlots=times.map(t=>`<div class="time-slot">${t}</div>`).join('');
+  const dayCols=days.map(d=>{
+    const daySessions=sessions.filter(s=>s.date===d);
+    const blocks=daySessions.map(s=>{
+      const sh=parseInt(s.start.split(':')[0]);const sm=parseInt(s.start.split(':')[1]||0);
+      const eh=parseInt(s.end.split(':')[0]);const em=parseInt(s.end.split(':')[1]||0);
+      const top=((sh-6)*60+sm)/15*12;
+      const height=((eh-sh)*60+(em-sm))/15*12;
+      const clr=getColor(s.trainerId);
+      return`<div class="session-block" style="top:${top}px;height:${Math.max(height,24)}px;background:${clr}20;border-left:3px solid ${clr}" onclick="editSession('${s.id}')">
+        <div style="font-size:10px;font-weight:700;color:${clr}">${s.start}</div>
+        <div style="font-size:10px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis">${s.memberName||''}</div>
+        <div style="font-size:9px;color:var(--gray-500)">${s.type||''}</div>
+      </div>`;}).join('');
+    return`<div class="day-col" style="${d===today()?'background:rgba(249,115,22,.03)':''}">${blocks}</div>`;}).join('');
+  document.getElementById('schedContent').innerHTML=`
+  <div class="week-grid">
+    <div class="week-header"><div class="wh-cell">Time</div>${dayHeaders}</div>
+    <div class="week-body"><div class="time-col">${timeSlots}</div>${dayCols}</div>
+  </div>`;
+}
+function renderListView(){
+  const sessions=getSchedSessions().sort((a,b)=>a.date.localeCompare(b.date)||a.start.localeCompare(b.start));
+  const rows=sessions.length?sessions.map(s=>{
+    const statusCls={'Scheduled':'badge-scheduled','Completed':'badge-completed','Cancelled':'badge-cancelled'}[s.status]||'';
+    return`<tr>
+      <td>${formatDate(s.date)}</td><td>${s.start}–${s.end}</td>
+      <td>${s.trainerName||'—'}</td><td>${s.memberName||'—'}</td>
+      <td>${s.type}</td>
+      <td><span class="badge ${statusCls}">${s.status}</span></td>
+      <td><div class="td-actions">
+        ${currentUser.role!=='trainer'?`<button class="btn-icon" onclick="editSession('${s.id}')">✏️</button>`:''}
+        <button class="btn-icon" onclick="toggleSessionStatus('${s.id}')" title="Toggle status">🔄</button>
+        ${currentUser.role!=='trainer'?`<button class="btn-icon" style="color:var(--red)" onclick="deleteSession('${s.id}')">🗑️</button>`:''}
+      </div></td>
+    </tr>`;}).join(''):`<tr><td colspan="7"><div class="empty-state"><div class="empty-icon">📅</div><p>No sessions found</p></div></td></tr>`;
+  document.getElementById('schedContent').innerHTML=`
+  <div class="table-card">
+    <div class="table-header"><h3>All Sessions</h3></div>
+    <div style="overflow-x:auto"><table><thead><tr><th>Date</th><th>Time</th><th>Trainer</th><th>Member</th><th>Type</th><th>Status</th><th>Actions</th></tr></thead><tbody>${rows}</tbody></table></div>
+  </div>`;
+}
+function getMondayOf(dateStr){const d=new Date(dateStr);const day=d.getDay();const diff=d.getDate()-day+(day===0?-6:1);return new Date(d.setDate(diff)).toISOString().split('T')[0];}
+function buildTimeOptions(){
+  const opts=[];for(let h=5;h<=22;h++)for(let m of[0,30]){const hh=h.toString().padStart(2,'0');const mm=m.toString().padStart(2,'0');opts.push(`<option value="${hh}:${mm}">${hh}:${mm}</option>`);}
+  return opts.join('');
+}
+let editingSessionId=null;
+function openSessionModal(){
+  editingSessionId=null;
+  document.getElementById('sessionModalTitle').textContent='Create Session';
+  document.getElementById('sessionFormError').style.display='none';
+  const trainers=DB.get(KEY.users).filter(u=>u.role==='trainer');
+  document.getElementById('sf_trainer').innerHTML=trainers.map(u=>`<option value="${u.id}">${u.name}</option>`).join('');
+  if(currentUser.role==='trainer'){document.getElementById('sf_trainer').value=currentUser.id;document.getElementById('sf_trainer').disabled=true;}
+  document.getElementById('sf_memberSearch').value='';document.getElementById('sf_memberId').value='';document.getElementById('sf_memberList').style.display='none';
+  document.getElementById('sf_type').value='';document.getElementById('sf_date').value=today();
+  const timeOpts=buildTimeOptions();
+  document.getElementById('sf_start').innerHTML=timeOpts;document.getElementById('sf_end').innerHTML=timeOpts;
+  document.getElementById('sf_start').value='08:00';document.getElementById('sf_end').value='09:00';
+  document.getElementById('sf_notes').value='';
+  openModal('sessionModal');
+}
+function editSession(id){
+  const s=DB.getOne(KEY.sessions,id);if(!s)return;
+  editingSessionId=id;
+  document.getElementById('sessionModalTitle').textContent='Edit Session';
+  document.getElementById('sessionFormError').style.display='none';
+  const trainers=DB.get(KEY.users).filter(u=>u.role==='trainer');
+  document.getElementById('sf_trainer').innerHTML=trainers.map(u=>`<option value="${u.id}">${u.name}</option>`).join('');
+  document.getElementById('sf_trainer').value=s.trainerId;
+  if(currentUser.role==='trainer')document.getElementById('sf_trainer').disabled=true;
+  document.getElementById('sf_memberSearch').value=s.memberName||'';document.getElementById('sf_memberId').value=s.memberId||'';
+  document.getElementById('sf_type').value=s.type;document.getElementById('sf_date').value=s.date;
+  const timeOpts=buildTimeOptions();
+  document.getElementById('sf_start').innerHTML=timeOpts;document.getElementById('sf_end').innerHTML=timeOpts;
+  document.getElementById('sf_start').value=s.start;document.getElementById('sf_end').value=s.end;
+  document.getElementById('sf_notes').value=s.notes||'';
+  openModal('sessionModal');
+}
+function filterSessionMember(val){
+  const list=document.getElementById('sf_memberList');
+  if(!val){list.style.display='none';return;}
+  const members=DB.get(KEY.members).filter(m=>m.status!=='Archived'&&m.name.toLowerCase().includes(val.toLowerCase())).slice(0,8);
+  if(!members.length){list.style.display='none';return;}
+  list.innerHTML=members.map(m=>`<div style="padding:8px 12px;cursor:pointer;font-size:13px;border-bottom:1px solid rgba(255,255,255,.05)" onmousedown="selectSessMember('${m.id}','${m.name.replace(/'/g,"\\'")}'))" onmouseover="this.style.background='rgba(249,115,22,.1)'" onmouseout="this.style.background=''">${m.name}</div>`).join('');
+  list.style.display='block';
+}
+function selectSessMember(id,name){
+  document.getElementById('sf_memberSearch').value=name;document.getElementById('sf_memberId').value=id;
+  document.getElementById('sf_memberList').style.display='none';
+}
+function saveSession(){
+  const trainerId=document.getElementById('sf_trainer').value;
+  const memberId=document.getElementById('sf_memberId').value;
+  const type=document.getElementById('sf_type').value;
+  const date=document.getElementById('sf_date').value;
+  const start=document.getElementById('sf_start').value;
+  const end=document.getElementById('sf_end').value;
+  const err=document.getElementById('sessionFormError');
+  err.style.display='none';
+  if(!trainerId||!memberId||!type||!date||!start||!end){err.textContent='Please fill in all required fields.';err.style.display='block';return;}
+  if(end<=start){err.textContent='End time must be after start time.';err.style.display='block';return;}
+  const sessions=DB.get(KEY.sessions);
+  const daySessions=sessions.filter(s=>s.trainerId===trainerId&&s.date===date&&s.status!=='Cancelled'&&s.id!==editingSessionId);
+  const conflict=daySessions.find(s=>{return start<s.end&&end>s.start;});
+  if(conflict){err.textContent='Schedule Overlap Detected. Please choose a different time or trainer.';err.style.display='block';return;}
+  if(daySessions.length>=8){err.textContent='Trainer not available for the selected day.';err.style.display='block';return;}
+  const trainer=DB.get(KEY.users).find(u=>u.id===trainerId);
+  const member=DB.getOne(KEY.members,memberId);
+  const data={trainerId,trainerName:trainer?trainer.name:'Unknown',memberId,memberName:member?member.name:'Unknown',type,date,start,end,notes:document.getElementById('sf_notes').value.trim(),status:'Scheduled'};
+  if(editingSessionId){
+    const idx=sessions.findIndex(s=>s.id===editingSessionId);
+    if(idx>-1)sessions[idx]={...sessions[idx],...data};
+    DB.set(KEY.sessions,sessions);toast('Session updated.');
+  } else {
+    sessions.push({id:uid(),...data});DB.set(KEY.sessions,sessions);toast('Session Scheduled Successfully.');
+  }
+  closeModal('sessionModal');renderSchedule();
+}
+function toggleSessionStatus(id){
+  const sessions=DB.get(KEY.sessions);const idx=sessions.findIndex(s=>s.id===id);
+  if(idx<0)return;
+  const s=sessions[idx];
+  const cycle={Scheduled:'Completed',Completed:'Cancelled',Cancelled:'Scheduled'};
+  sessions[idx].status=cycle[s.status]||'Scheduled';
+  DB.set(KEY.sessions,sessions);toast(`Session marked as ${sessions[idx].status}.`,'info');renderSchedule();
+}
+function deleteSession(id){
+  openConfirm('Delete Session','Are you sure you want to delete this session?',()=>{
+    const sessions=DB.get(KEY.sessions).filter(s=>s.id!==id);DB.set(KEY.sessions,sessions);toast('Session deleted.');renderSchedule();
+  });
+}
+
+// ======================================================================
+// PANEL: NOTIFICATIONS
+// ======================================================================
+let dismissedNotifs=false;
+function renderNotifications(){
+  const el=document.getElementById('panelNotifications');
+  const members=DB.get(KEY.members).filter(m=>{if(m.status==='Archived')return false;const d=daysUntil(m.expiryDate);return d>=0&&d<=3;});
+  if(dismissedNotifs||!members.length){
+    el.innerHTML=`<div class="table-card"><div class="table-header"><h3>🔔 Renewal Reminders <span class="badge badge-active" style="margin-left:8px">0</span></h3></div>
+    <div style="padding:40px;text-align:center;color:var(--green)"><div style="font-size:40px">✅</div><p style="margin-top:12px">No renewal reminders at this time.</p></div></div>`;
+    return;
+  }
+  const plans=DB.get(KEY.plans);
+  const items=members.map(m=>{
+    const d=daysUntil(m.expiryDate);const pl=plans.find(p=>p.id===m.planId);
+    const urgent=d<=1;
+    return`<div class="notif-item ${urgent?'urgent':'warning'}">
+      <div class="user-avatar" style="width:38px;height:38px;background:${urgent?'var(--red)':'var(--gold)'};flex-shrink:0">${initials(m.name)}</div>
+      <div class="notif-info">
+        <div class="notif-name">${m.name}</div>
+        <div class="notif-detail">${pl?pl.name:'—'} · Expires ${formatDate(m.expiryDate)}</div>
+      </div>
+      <span class="days-badge ${urgent?'days-urgent':'days-warn'}">${d} day${d!==1?'s':''} left</span>
+      <button class="btn-primary btn-sm" onclick="openPaymentForMember('${m.id}');navigate('billing')">Record Payment</button>
+    </div>`;}).join('');
+  el.innerHTML=`
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+    <div class="section-title">🔔 Renewal Reminders <span class="badge badge-expired" style="margin-left:4px">${members.length}</span></div>
+    <button class="btn-secondary btn-sm" onclick="dismissedNotifs=true;renderNotifications()">Dismiss All</button>
+  </div>
+  <div class="notif-list">${items}</div>`;
+}
+
+// ======================================================================
+// PANEL: PLANS
+// ======================================================================
+function renderPlans(){
+  const el=document.getElementById('panelPlans');
+  const plans=DB.get(KEY.plans);
+  const members=DB.get(KEY.members).filter(m=>m.status!=='Archived');
+  const cards=plans.map(p=>{
+    const count=members.filter(m=>m.planId===p.id).length;
+    const benefits=(p.benefits||'').split(/\n|,/).map(b=>b.trim()).filter(Boolean);
+    return`<div class="plan-card">
+      <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:12px">
+        <div><div class="plan-card-name">${p.name}</div><span class="badge ${p.status==='Active'?'badge-active':'badge-inactive'}">${p.status}</span></div>
+        <div class="td-actions"><button class="btn-icon" onclick="openPlanModal('${p.id}')">✏️</button><button class="btn-icon" style="color:var(--red)" onclick="deletePlan('${p.id}')">🗑️</button></div>
+      </div>
+      <div class="plan-card-price">₱${Number(p.price).toLocaleString()}</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
+        <div style="background:var(--navy-700);border-radius:8px;padding:8px;text-align:center"><div style="font-size:10px;color:var(--gray-500);text-transform:uppercase;letter-spacing:.5px">Duration</div><div style="font-weight:700">${p.duration} mo.</div></div>
+        <div style="background:var(--navy-700);border-radius:8px;padding:8px;text-align:center"><div style="font-size:10px;color:var(--gray-500);text-transform:uppercase;letter-spacing:.5px">Sessions</div><div style="font-weight:700">${p.sessions}</div></div>
+      </div>
+      ${benefits.map(b=>`<div class="plan-feature">✓ ${b}</div>`).join('')}
+      <div style="margin-top:10px;font-size:11px;color:var(--gray-500)">${count} active member${count!==1?'s':''}</div>
+    </div>`;}).join('');
+  el.innerHTML=`
+  <div class="page-actions">
+    <div></div>
+    <button class="btn-primary" onclick="openPlanModal()">+ Add New Plan</button>
+  </div>
+  <div class="plan-grid">${cards||`<div class="empty-state"><div class="empty-icon">📋</div><p>No plans created yet</p></div>`}</div>`;
+}
+let editingPlanId=null;
+function openPlanModal(id=null){
+  editingPlanId=id;
+  document.getElementById('planModalTitle').textContent=id?'Edit Plan':'Add New Plan';
+  document.getElementById('planFormError').style.display='none';
+  if(id){
+    const p=DB.getOne(KEY.plans,id);if(!p)return;
+    document.getElementById('plf_name').value=p.name;document.getElementById('plf_price').value=p.price;
+    document.getElementById('plf_dur').value=p.duration;
+    if(p.sessions==='Unlimited'){document.getElementById('plf_unlimited').checked=true;document.getElementById('plf_sessions').value='';document.getElementById('plf_sessions').disabled=true;}
+    else{document.getElementById('plf_unlimited').checked=false;document.getElementById('plf_sessions').value=p.sessions;document.getElementById('plf_sessions').disabled=false;}
+    document.getElementById('plf_benefits').value=p.benefits||'';document.getElementById('plf_status').value=p.status||'Active';
+  } else {
+    ['plf_name','plf_price','plf_dur','plf_sessions','plf_benefits'].forEach(id=>document.getElementById(id).value='');
+    document.getElementById('plf_unlimited').checked=false;document.getElementById('plf_sessions').disabled=false;document.getElementById('plf_status').value='Active';
+  }
+  openModal('planModal');
+}
+function toggleUnlimited(cb){document.getElementById('plf_sessions').disabled=cb.checked;if(cb.checked)document.getElementById('plf_sessions').value='';}
+function savePlan(){
+  const name=document.getElementById('plf_name').value.trim();
+  const price=parseFloat(document.getElementById('plf_price').value);
+  const dur=parseInt(document.getElementById('plf_dur').value);
+  const unlimited=document.getElementById('plf_unlimited').checked;
+  const sessions=unlimited?'Unlimited':parseInt(document.getElementById('plf_sessions').value);
+  const benefits=document.getElementById('plf_benefits').value.trim();
+  const status=document.getElementById('plf_status').value;
+  const err=document.getElementById('planFormError');
+  err.style.display='none';
+  if(!name||!price||!dur||(!unlimited&&!sessions)){err.textContent='Please fill in all required fields.';err.style.display='block';return;}
+  if(price<=0||dur<=0){err.textContent='Invalid price or duration.';err.style.display='block';return;}
+  const plans=DB.get(KEY.plans);
+  const dup=plans.find(p=>p.name.toLowerCase()===name.toLowerCase()&&p.id!==editingPlanId);
+  if(dup){err.textContent='Plan name already in use.';err.style.display='block';return;}
+  const data={name,price,duration:dur,sessions,benefits,status};
+  if(editingPlanId){
+    const idx=plans.findIndex(p=>p.id===editingPlanId);
+    if(idx>-1)plans[idx]={...plans[idx],...data};DB.set(KEY.plans,plans);toast('Plan updated.');
+  } else {plans.push({id:uid(),...data});DB.set(KEY.plans,plans);toast('Plan created.');}
+  closeModal('planModal');renderPlans();
+}
+function deletePlan(id){
+  const p=DB.getOne(KEY.plans,id);
+  const activeCount=DB.get(KEY.members).filter(m=>m.planId===id&&m.status!=='Archived').length;
+  if(activeCount>0){toast('Cannot delete a plan with active members. Deactivate it instead.','error');return;}
+  openConfirm('Delete Plan',`Delete plan "${p?p.name:''}"?`,()=>{
+    const plans=DB.get(KEY.plans).filter(p=>p.id!==id);DB.set(KEY.plans,plans);toast('Plan deleted.');renderPlans();
+  });
+}
+
+// ======================================================================
+// PANEL: REPORTS
+// ======================================================================
+let reportType='revenue';
+function renderReports(){
+  const el=document.getElementById('panelReports');
+  el.innerHTML=`
+  <div class="report-tabs">
+    <button class="rtab ${reportType==='revenue'?'active':''}" onclick="reportType='revenue';renderReports()">💰 Revenue</button>
+    <button class="rtab ${reportType==='attendance'?'active':''}" onclick="reportType='attendance';renderReports()">📋 Attendance</button>
+    <button class="rtab ${reportType==='membership'?'active':''}" onclick="reportType='membership';renderReports()">👥 Membership</button>
+  </div>
+  <div class="report-filters" id="reportFilters">
+    <div class="form-group"><label>From Date</label><input type="date" id="rpt_from" class="search-input"></div>
+    <div class="form-group"><label>To Date</label><input type="date" id="rpt_to" class="search-input" value="${today()}"></div>
+    ${reportType==='revenue'?`<div class="form-group"><label>Plan</label><select id="rpt_plan" class="filter-sel"><option value="all">All Plans</option>${DB.get(KEY.plans).map(p=>`<option value="${p.id}">${p.name}</option>`).join('')}</select></div>`:''}
+    ${reportType==='attendance'?`<div class="form-group"><label>Trainer</label><select id="rpt_trainer" class="filter-sel"><option value="all">All Trainers</option>${DB.get(KEY.users).filter(u=>u.role==='trainer').map(u=>`<option value="${u.id}">${u.name}</option>`).join('')}</select></div>`:''}
+    <div class="form-group" style="align-self:end"><button class="btn-primary" onclick="generateReport()">Generate Report</button></div>
+  </div>
+  <div class="report-output" id="reportOutput"></div>`;
+}
+function generateReport(){
+  const from=document.getElementById('rpt_from')?.value||'';
+  const to=document.getElementById('rpt_to')?.value||today();
+  const output=document.getElementById('reportOutput');
+  output.classList.add('visible');
+  if(reportType==='revenue'){
+    let data=DB.get(KEY.payments);
+    if(from)data=data.filter(p=>p.date>=from);
+    if(to)data=data.filter(p=>p.date<=to);
+    const planFilter=document.getElementById('rpt_plan')?.value||'all';
+    if(planFilter!=='all')data=data.filter(p=>p.planId===planFilter);
+    if(!data.length){output.innerHTML=`<div class="empty-state"><div class="empty-icon">📊</div><p>No data found for the selected filters. Try adjusting the date range.</p></div>`;return;}
+    const total=data.reduce((a,p)=>a+Number(p.amount),0);
+    const avgAmount=total/data.length;
+    // Group by month
+    const byMonth={};data.forEach(p=>{const m=p.date.slice(0,7);byMonth[m]=(byMonth[m]||0)+Number(p.amount);});
+    const months=Object.keys(byMonth).sort();
+    const maxVal=Math.max(...Object.values(byMonth),1);
+    const barW=50;const gap=16;const chartH=120;
+    const bars=months.map((m,i)=>{const v=byMonth[m];const bh=Math.max(4,(v/maxVal)*chartH);const x=i*(barW+gap)+10;const y=chartH-bh+20;return`<g><rect x="${x}" y="${y}" width="${barW}" height="${bh}" rx="4" fill="url(#repBarGrad)"/><text x="${x+barW/2}" y="${chartH+32}" text-anchor="middle" fill="#94a3b8" font-size="10">${m.slice(5)}</text><text x="${x+barW/2}" y="${y-4}" text-anchor="middle" fill="#f97316" font-size="9">₱${v>=1000?(v/1000).toFixed(1)+'k':v}</text></g>`;}).join('');
+    const svgW=Math.max(300,months.length*(barW+gap)+30);
+    const rows=data.slice().reverse().map(p=>`<tr><td>${p.id}</td><td>${p.memberName}</td><td>${p.planName}</td><td style="color:var(--green)">₱${Number(p.amount).toLocaleString()}</td><td>${formatDate(p.date)}</td><td>${p.method}</td></tr>`).join('');
+    output.innerHTML=`
+    <div class="stats-grid">
+      <div class="stat-card orange"><div class="stat-label">Total Revenue</div><div class="stat-value" style="font-size:22px">₱${total.toLocaleString()}</div></div>
+      <div class="stat-card green"><div class="stat-label">Transactions</div><div class="stat-value">${data.length}</div></div>
+      <div class="stat-card gold"><div class="stat-label">Avg Transaction</div><div class="stat-value" style="font-size:22px">₱${avgAmount.toFixed(0)}</div></div>
+    </div>
+    ${months.length?`<div class="chart-card" style="margin-bottom:20px"><div class="chart-title">Revenue by Month</div><svg viewBox="0 0 ${svgW} 160" style="height:160px"><defs><linearGradient id="repBarGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#f97316"/><stop offset="100%" stop-color="#f59e0b"/></linearGradient></defs>${bars}</svg></div>`:''}
+    <div class="table-card">
+      <div class="table-header"><h3>Revenue Records</h3><button class="btn-secondary btn-sm" onclick="exportCSV('revenue')">📥 Export CSV</button></div>
+      <div style="overflow-x:auto"><table><thead><tr><th>Pay ID</th><th>Member</th><th>Plan</th><th>Amount</th><th>Date</th><th>Method</th></tr></thead><tbody>${rows}</tbody></table></div>
+    </div>`;
+  } else if(reportType==='attendance'){
+    let data=DB.get(KEY.attendance);
+    if(from)data=data.filter(a=>a.date>=from);
+    if(to)data=data.filter(a=>a.date<=to);
+    const trainerFilter=document.getElementById('rpt_trainer')?.value||'all';
+    if(trainerFilter!=='all'){
+      const tSessions=DB.get(KEY.sessions).filter(s=>s.trainerId===trainerFilter).map(s=>s.memberId);
+      data=data.filter(a=>tSessions.includes(a.memberId));
+    }
+    if(!data.length){output.innerHTML=`<div class="empty-state"><div class="empty-icon">📊</div><p>No data found for the selected filters. Try adjusting the date range.</p></div>`;return;}
+    const rows=data.slice().reverse().map(a=>{const m=DB.get(KEY.members).find(x=>x.id===a.memberId);return`<tr><td>${formatDate(a.date)}</td><td>${a.time}</td><td>${m?m.name:'Unknown'}</td><td>${a.recordedBy||'—'}</td></tr>`;}).join('');
+    output.innerHTML=`
+    <div class="stats-grid">
+      <div class="stat-card orange"><div class="stat-label">Total Check-Ins</div><div class="stat-value">${data.length}</div></div>
+    </div>
+    <div class="table-card">
+      <div class="table-header"><h3>Attendance Records</h3><button class="btn-secondary btn-sm" onclick="exportCSV('attendance')">📥 Export CSV</button></div>
+      <div style="overflow-x:auto"><table><thead><tr><th>Date</th><th>Time</th><th>Member</th><th>Recorded By</th></tr></thead><tbody>${rows}</tbody></table></div>
+    </div>`;
+  } else {
+    const members=DB.get(KEY.members).filter(m=>m.status!=='Archived');
+    let filtered=members;
+    if(from)filtered=filtered.filter(m=>(m.createdAt||m.startDate)>=from);
+    if(to)filtered=filtered.filter(m=>(m.createdAt||m.startDate)<=to);
+    if(!filtered.length){output.innerHTML=`<div class="empty-state"><div class="empty-icon">📊</div><p>No data found for the selected filters. Try adjusting the date range.</p></div>`;return;}
+    const active=filtered.filter(m=>m.status==='Active'||m.status==='Expiring Soon').length;
+    const expired=filtered.filter(m=>m.status==='Expired').length;
+    const rows=filtered.map(m=>{const pl=DB.get(KEY.plans).find(p=>p.id===m.planId);const badgeCls={Active:'badge-active',Expired:'badge-expired','Expiring Soon':'badge-expiring',Suspended:'badge-suspended'}[m.status]||'';return`<tr><td>${m.id}</td><td>${m.name}</td><td>${pl?pl.name:'—'}</td><td>${formatDate(m.startDate)}</td><td>${formatDate(m.expiryDate)}</td><td><span class="badge ${badgeCls}">${m.status}</span></td></tr>`;}).join('');
+    output.innerHTML=`
+    <div class="stats-grid">
+      <div class="stat-card orange"><div class="stat-label">Total Members</div><div class="stat-value">${filtered.length}</div></div>
+      <div class="stat-card green"><div class="stat-label">Active</div><div class="stat-value">${active}</div></div>
+      <div class="stat-card gold"><div class="stat-label">Expired</div><div class="stat-value">${expired}</div></div>
+    </div>
+    <div class="table-card">
+      <div class="table-header"><h3>Membership Report</h3><button class="btn-secondary btn-sm" onclick="exportCSV('membership')">📥 Export CSV</button></div>
+      <div style="overflow-x:auto"><table><thead><tr><th>ID</th><th>Name</th><th>Plan</th><th>Start</th><th>Expiry</th><th>Status</th></tr></thead><tbody>${rows}</tbody></table></div>
+    </div>`;
+  }
+}
+function exportCSV(type){
+  let csv='';let filename='';
+  if(type==='revenue'){
+    const data=DB.get(KEY.payments);
+    csv='Pay ID,Member,Plan,Amount,Date,Method\n'+data.map(p=>`${p.id},"${p.memberName}","${p.planName}",${p.amount},${p.date},${p.method}`).join('\n');
+    filename='revenue_report.csv';
+  } else if(type==='attendance'){
+    const data=DB.get(KEY.attendance);
+    csv='Date,Time,Member ID,Recorded By\n'+data.map(a=>`${a.date},${a.time},${a.memberId},${a.recordedBy||''}`).join('\n');
+    filename='attendance_report.csv';
+  } else {
+    const data=DB.get(KEY.members).filter(m=>m.status!=='Archived');
+    csv='ID,Name,Plan ID,Start Date,Expiry Date,Status\n'+data.map(m=>`${m.id},"${m.name}",${m.planId||''},${m.startDate},${m.expiryDate},${m.status}`).join('\n');
+    filename='membership_report.csv';
+  }
+  const blob=new Blob([csv],{type:'text/csv'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=filename;a.click();URL.revokeObjectURL(url);
+  toast('CSV exported successfully.');
+}
+
+// ======================================================================
+// PANEL: USER MANAGEMENT
+// ======================================================================
+let userSearch='';
+function renderUsers(){
+  const el=document.getElementById('panelUsers');
+  el.innerHTML=`
+  <div class="page-actions">
+    <input class="search-input" placeholder="🔍 Search users…" value="${userSearch}" oninput="userSearch=this.value;refreshUserTable()">
+    <button class="btn-primary" onclick="openUserModal()">+ Add User</button>
+  </div>
+  <div class="table-card" id="userTableCard"></div>`;
+  refreshUserTable();
+}
+function refreshUserTable(){
+  let data=DB.get(KEY.users);
+  if(userSearch){const s=userSearch.toLowerCase();data=data.filter(u=>u.name.toLowerCase().includes(s)||u.username.toLowerCase().includes(s));}
+  const rows=data.length?data.map(u=>{
+    const roleCls={admin:'badge-admin',staff:'badge-staff',trainer:'badge-trainer'}[u.role]||'';
+    const statusCls=u.status==='locked'?'badge-locked':'badge-active';
+    const statusLabel=u.status==='locked'?'Locked':'Active';
+    return`<tr>
+      <td><div style="display:flex;align-items:center;gap:8px"><div class="user-avatar avatar-${u.role}" style="width:28px;height:28px;font-size:10px">${initials(u.name)}</div>${u.name}</div></td>
+      <td>${u.username}</td>
+      <td><span class="badge ${roleCls}">${u.role}</span></td>
+      <td>${formatDate(u.createdAt||today())}</td>
+      <td><span class="badge ${statusCls}">${statusLabel}</span></td>
+      <td><div class="td-actions">
+        <button class="btn-icon" title="Edit" onclick="openUserModal('${u.id}')">✏️</button>
+        <button class="btn-icon" title="${u.status==='locked'?'Unlock':'Lock'}" onclick="toggleUserLock('${u.id}')">${u.status==='locked'?'🔓':'🔒'}</button>
+        <button class="btn-icon" title="Delete" style="color:var(--red)" onclick="deleteUser('${u.id}')">🗑️</button>
+      </div></td>
+    </tr>`;}).join(''):`<tr><td colspan="6"><div class="empty-state"><div class="empty-icon">👤</div><p>No users found</p></div></td></tr>`;
+  document.getElementById('userTableCard').innerHTML=`
+    <div class="table-header"><h3>System Users</h3></div>
+    <div style="overflow-x:auto"><table><thead><tr><th>Name</th><th>Username</th><th>Role</th><th>Created</th><th>Status</th><th>Actions</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+}
+let editingUserId=null;
+function openUserModal(id=null){
+  editingUserId=id;
+  document.getElementById('userModalTitle').textContent=id?'Edit User':'Add User';
+  document.getElementById('userFormError').style.display='none';
+  if(id){
+    const u=DB.getOne(KEY.users,id);if(!u)return;
+    document.getElementById('uf_name').value=u.name;document.getElementById('uf_user').value=u.username;
+    document.getElementById('uf_pass').value='';document.getElementById('uf_pass2').value='';
+    document.getElementById('uf_role').value=u.role==='admin'?'staff':u.role;
+  } else {
+    ['uf_name','uf_user','uf_pass','uf_pass2'].forEach(id=>document.getElementById(id).value='');
+    document.getElementById('uf_role').value='staff';
+  }
+  openModal('userModal');
+}
+function saveUser(){
+  const name=document.getElementById('uf_name').value.trim();
+  const username=document.getElementById('uf_user').value.trim();
+  const pass=document.getElementById('uf_pass').value;
+  const pass2=document.getElementById('uf_pass2').value;
+  const role=document.getElementById('uf_role').value;
+  const err=document.getElementById('userFormError');
+  err.style.display='none';
+  if(!name||!username||(!editingUserId&&!pass)||!role){err.textContent='Please fill in all required fields.';err.style.display='block';return;}
+  if(pass&&pass!==pass2){err.textContent='Passwords do not match.';err.style.display='block';return;}
+  const users=DB.get(KEY.users);
+  const dup=users.find(u=>u.username===username&&u.id!==editingUserId);
+  if(dup){err.textContent='Username already taken.';err.style.display='block';return;}
+  if(editingUserId){
+    const idx=users.findIndex(u=>u.id===editingUserId);
+    if(idx>-1){users[idx].name=name;users[idx].username=username;users[idx].role=role;if(pass)users[idx].password=pass;}
+    DB.set(KEY.users,users);toast('User updated.');
+  } else {
+    users.push({id:uid(),name,username,password:pass,role,status:'active',createdAt:today()});
+    DB.set(KEY.users,users);toast('User created.');
+  }
+  closeModal('userModal');renderUsers();
+}
+function toggleUserLock(id){
+  if(id===currentUser.id){toast('You cannot lock your own account.','error');return;}
+  const users=DB.get(KEY.users);const idx=users.findIndex(u=>u.id===id);
+  if(idx<0)return;
+  users[idx].status=users[idx].status==='locked'?'active':'locked';
+  DB.set(KEY.users,users);toast(`User ${users[idx].status==='locked'?'locked':'unlocked'}.`,'info');renderUsers();
+}
+function deleteUser(id){
+  if(id===currentUser.id){toast('You cannot delete your own account.','error');return;}
+  const u=DB.getOne(KEY.users,id);
+  openConfirm('Delete User',`Delete user "${u?u.name:''}"? This cannot be undone.`,()=>{
+    const users=DB.get(KEY.users).filter(u=>u.id!==id);DB.set(KEY.users,users);toast('User deleted.');renderUsers();
+  });
+}
+
+// ======================================================================
+// CHECK-IN
+// ======================================================================
+function openCheckin(){
+  const members=DB.get(KEY.members).filter(m=>m.status!=='Archived');
+  document.getElementById('ci_member').innerHTML=`<option value="">Select member…</option>`+members.map(m=>`<option value="${m.id}">${m.name} (${m.id})</option>`).join('');
+  document.getElementById('checkinError').style.display='none';
+  openModal('checkinModal');
+}
+function doCheckin(){
+  const memberId=document.getElementById('ci_member').value;
+  const err=document.getElementById('checkinError');
+  err.style.display='none';
+  if(!memberId){err.textContent='Please select a member.';err.style.display='block';return;}
+  const today_=today();
+  const attendance=DB.get(KEY.attendance);
+  if(attendance.find(a=>a.memberId===memberId&&a.date===today_)){err.textContent='Member already checked in today.';err.style.display='block';return;}
+  const now=new Date();const time=now.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
+  attendance.push({id:uid(),memberId,date:today_,time,recordedBy:currentUser.username});
+  DB.set(KEY.attendance,attendance);
+  toast('Check-in recorded successfully.');closeModal('checkinModal');
+  if(document.getElementById('panelDashboard').classList.contains('active'))renderDashboard();
+}
+
+// ======================================================================
+// CLOSE MODAL ON BACKDROP CLICK
+// ======================================================================
+document.querySelectorAll('.modal-overlay').forEach(el=>{
+  el.addEventListener('click',e=>{if(e.target===el)el.classList.remove('open');});
+});
+
+// ======================================================================
+// INIT
+// ======================================================================
+(function(){
+  seedData();
+  const sess=getSession();
+  if(sess){currentUser=sess;loadApp();}
+})();
+</script>
+</body>
+</html>
